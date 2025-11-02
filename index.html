@@ -1,463 +1,0 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>يوسف أحمد محمد - مطور ومصمم جرافيك</title>
-    <meta name="description" content="موقع شخصي ليوسف أحمد محمد - مطور ومصمم جرافيك متخصص في البرمجة والتصميم والذكاء الاصطناعي">
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- AOS Animation Library -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <!-- Navigation -->
-    <nav class="navbar" id="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <span>يوسف أحمد</span>
-            </div>
-            <ul class="nav-menu" id="nav-menu">
-                <li class="nav-item">
-                    <a href="#home" class="nav-link">الرئيسية</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#cv" class="nav-link">السيرة الذاتية</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#portfolio" class="nav-link">أعمالي</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#contact" class="nav-link">تواصل معي</a>
-                </li>
-                <li class="nav-item">
-                    <a href="#comments" class="nav-link">التعليقات</a>
-                </li>
-            </ul>
-            <div class="nav-toggle" id="nav-toggle">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </div>
-            <div class="theme-toggle" id="theme-toggle">
-                <i class="fas fa-moon"></i>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <section id="home" class="hero">
-        <div class="hero-container">
-            <div class="hero-content" data-aos="fade-up" data-aos-duration="1000">
-                <div class="hero-image">
-                    <div class="profile-image">
-                        <img src="images/profile.jpg" alt="يوسف أحمد محمد" id="profile-img">
-                        <div class="image-overlay"></div>
-                    </div>
-                </div>
-                <h1 class="hero-title">
-                    <span class="title-line">مرحباً، أنا</span>
-                    <span class="title-name">يوسف أحمد محمد</span>
-                </h1>
-                <p class="hero-subtitle">
-                    مطور ومصمم جرافيك شغوف بالبرمجة والتصميم والذكاء الاصطناعي
-                </p>
-                <div class="hero-buttons">
-                    <a href="#cv" class="btn btn-primary">
-                        <i class="fas fa-user"></i>
-                        استعرض السيرة الذاتية
-                    </a>
-                    <a href="#portfolio" class="btn btn-secondary">
-                        <i class="fas fa-briefcase"></i>
-                        شاهد أعمالي
-                    </a>
-                </div>
-            </div>
-            
-        </div>
-        <div class="hero-bg">
-            <div class="bg-shape shape-1"></div>
-            <div class="bg-shape shape-2"></div>
-            <div class="bg-shape shape-3"></div>
-        </div>
-    </section>
-
-    <!-- CV Section -->
-    <section id="cv" class="cv-section">
-        <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <h2 class="section-title">السيرة الذاتية</h2>
-                <p class="section-subtitle">تعرف على خبراتي ومهاراتي</p>
-            </div>
-
-            <!-- Personal Info -->
-            <div class="personal-info" data-aos="fade-up" data-aos-delay="100">
-                <div class="info-card">
-                    <h3>المعلومات الشخصية</h3>
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <i class="fas fa-user"></i>
-                            <div>
-                                <span class="info-label">الاسم الكامل</span>
-                                <span class="info-value">يوسف أحمد محمد السيد جمعة</span>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-calendar"></i>
-                            <div>
-                                <span class="info-label">تاريخ الميلاد</span>
-                                <span class="info-value">2008</span>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <div>
-                                <span class="info-label">العنوان</span>
-                                <span class="info-value">دمياط الجديدة - دمياط - مصر</span>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-phone"></i>
-                            <div>
-                                <span class="info-label">الهاتف</span>
-                                <span class="info-value">+201024485693</span>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <i class="fas fa-envelope"></i>
-                            <div>
-                                <span class="info-label">البريد الإلكتروني</span>
-                                <span class="info-value">yjmt46999@gmail.com</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Timeline -->
-            <div class="timeline-container" data-aos="fade-up" data-aos-delay="200">
-                <h3 class="timeline-title">الخبرات المهنية</h3>
-                <div class="timeline">
-                    <div class="timeline-item" data-aos="fade-right" data-aos-delay="300">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">2023 - 2024</div>
-                            <h4>مصمم جرافيك ومدير محتوى - Printly</h4>
-                            <p>تصميم محتوى إبداعي لمنصات التواصل الاجتماعي والمواد المطبوعة، وتطوير هويات بصرية شاملة للعلامات التجارية.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="timeline-item" data-aos="fade-left" data-aos-delay="400">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">2024</div>
-                            <h4>مصمم جرافيك - محمود لبن للأثاث</h4>
-                            <p>إنشاء مواد إعلانية مؤثرة وملصقات لترويج المنتجات بفعالية، وإدارة حملات التسويق الرقمي.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="timeline-item" data-aos="fade-right" data-aos-delay="500">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">2022 - 2024</div>
-                            <h4>مصمم جرافيك - تصاميم ديزاينز</h4>
-                            <p>إنتاج رسوميات جذابة لوسائل التواصل الاجتماعي وتحسين جودة المحتوى البصري لدعم استراتيجيات التسويق.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="timeline-item" data-aos="fade-left" data-aos-delay="600">
-                        <div class="timeline-dot"></div>
-                        <div class="timeline-content">
-                            <div class="timeline-date">2022 - 2024</div>
-                            <h4>مصمم جرافيك مستقل</h4>
-                            <p>إدارة وتصميم المحتوى البصري لوسائل التواصل الاجتماعي لعملاء متنوعين، وزيادة التفاعل من خلال تقنيات التصميم الفعالة.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Skills -->
-            <div class="skills-container" data-aos="fade-up" data-aos-delay="700">
-                <h3 class="skills-title">المهارات التقنية</h3>
-                <div class="skills-grid">
-                    <div class="skill-category">
-                        <h4><i class="fas fa-code"></i> لغات البرمجة</h4>
-                        <div class="skills-list" id="skills-programming"></div>
-                    </div>
-                    
-                    <div class="skill-category">
-                        <h4><i class="fas fa-paint-brush"></i> أدوات التصميم</h4>
-                        <div class="skills-list" id="skills-design"></div>
-                    </div>
-                    
-                    <div class="skill-category">
-                        <h4><i class="fas fa-cogs"></i> مهارات أخرى</h4>
-                        <div class="skills-list" id="skills-other"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Languages -->
-            <div class="languages-container" data-aos="fade-up" data-aos-delay="800">
-                <h3 class="languages-title">اللغات</h3>
-                <div class="languages-grid">
-                    <div class="language-item">
-                        <div class="language-info">
-                            <span class="language-name">العربية</span>
-                            <span class="language-level">اللغة الأم</span>
-                        </div>
-                        <div class="language-progress">
-                            <div class="progress-bar" style="width: 100%"></div>
-                        </div>
-                    </div>
-                    <div class="language-item">
-                        <div class="language-info">
-                            <span class="language-name">الإنجليزية</span>
-                            <span class="language-level">جيد</span>
-                        </div>
-                        <div class="language-progress">
-                            <div class="progress-bar" style="width: 75%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Portfolio Section -->
-    <section id="portfolio" class="portfolio-section">
-        <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <h2 class="section-title">أعمالي</h2>
-                <p class="section-subtitle">استعرض مجموعة من أعمالي في التصميم والبرمجة</p>
-            </div>
-
-            <!-- Filter Buttons -->
-            <div class="filter-container" data-aos="fade-up" data-aos-delay="100">
-                <button class="filter-btn active" data-filter="all">الكل</button>
-                <button class="filter-btn" data-filter="design">تصميم جرافيك</button>
-                <button class="filter-btn" data-filter="web">تطوير ويب</button>
-                <button class="filter-btn" data-filter="branding">هوية بصرية</button>
-                <button class="filter-btn" data-filter="social">سوشيال ميديا</button>
-            </div>
-
-            <!-- Portfolio Grid -->
-            <div class="portfolio-grid" id="portfolio-grid">
-                <!-- Portfolio items will be dynamically generated -->
-            </div>
-        </div>
-    </section>
-
-    <!-- Comments Section -->
-    <section id="comments" class="comments-section">
-        <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <h2 class="section-title">
-                    <span class="title-icon">💭</span>
-                    التعليقات
-                    <span class="title-decoration"></span>
-                </h2>
-                <p class="section-subtitle">شاركنا رأيك أو اترك تعليقاً - كل كلمة تهمنا</p>
-                <div class="section-stats">
-                    <div class="stat-item">
-                        <span class="stat-number" id="total-comments">0</span>
-                        <span class="stat-label">تعليق</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number" data-stat="likes">0</span>
-                        <span class="stat-label">❤️ إعجاب</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number" data-stat="thumbs">0</span>
-                        <span class="stat-label">👍 تقييم</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Comment Form -->
-            <div class="comment-form-container" data-aos="fade-up" data-aos-delay="100">
-                <form class="comment-form" id="comment-form">
-                    <div class="form-group">
-                        <label for="comment-name">الاسم</label>
-                        <input type="text" id="comment-name" name="name" required placeholder="اكتب اسمك">
-                    </div>
-                    <div class="form-group">
-                        <label for="comment-email">البريد الإلكتروني (اختياري)</label>
-                        <input type="email" id="comment-email" name="email" placeholder="example@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label for="comment-text">التعليق</label>
-                        <textarea id="comment-text" name="comment" required rows="4" placeholder="اكتب تعليقك هنا..."></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary comment-submit">
-                        <i class="fas fa-paper-plane"></i>
-                        إرسال التعليق
-                    </button>
-                </form>
-            </div>
-
-            <!-- Comments List -->
-            <div class="comments-container" data-aos="fade-up" data-aos-delay="200">
-                <div class="comments-header">
-                    <h3>التعليقات (<span id="comments-count">0</span>)</h3>
-                    <div class="comments-sort">
-                        <select id="comments-sort">
-                            <option value="newest">الأحدث أولاً</option>
-                            <option value="oldest">الأقدم أولاً</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="comments-list" id="comments-list">
-                    <div class="comments-loading" id="comments-loading">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <span>جاري تحميل التعليقات...</span>
-                    </div>
-                    <div class="no-comments" id="no-comments" style="display: none;">
-                        <i class="fas fa-comments"></i>
-                        <p>لا توجد تعليقات بعد. كن أول من يعلق!</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="contact-section">
-        <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <h2 class="section-title">تواصل معي</h2>
-                <p class="section-subtitle">دعنا نتعاون لتحقيق أفكارك</p>
-            </div>
-
-            <div class="contact-content">
-                <div class="contact-info" data-aos="fade-right" data-aos-delay="100">
-                    <div class="contact-item">
-                        <div class="contact-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        <div class="contact-details">
-                            <h4>البريد الإلكتروني</h4>
-                            <p>yjmt46999@gmail.com</p>
-                        </div>
-                    </div>
-                    
-                    <div class="contact-item">
-                        <div class="contact-icon">
-                            <i class="fas fa-phone"></i>
-                        </div>
-                        <div class="contact-details">
-                            <h4>الهاتف</h4>
-                            <p>+201024485693</p>
-                        </div>
-                    </div>
-                    
-                    <div class="contact-item">
-                        <div class="contact-icon">
-                            <i class="fas fa-map-marker-alt"></i>
-                        </div>
-                        <div class="contact-details">
-                            <h4>الموقع</h4>
-                            <p>دمياط الجديدة، مصر</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="social-links" data-aos="fade-left" data-aos-delay="200">
-                    <h3>تابعني على</h3>
-                    <div class="social-grid">
-                        <a href="https://web.facebook.com/ywsf.ahmd.jm.t.28459" class="social-link" target="_blank" rel="noopener">
-                            <i class="fab fa-facebook"></i>
-                            <span>Facebook</span>
-                        </a>
-                        <a href="https://github.com/youssef20807y" class="social-link" target="_blank" rel="noopener">
-                            <i class="fab fa-github"></i>
-                            <span>GitHub</span>
-                        </a>
-                        <a href="https://www.behance.net/46abdaaa" class="social-link" target="_blank" rel="noopener">
-                            <i class="fab fa-behance"></i>
-                            <span>Behance</span>
-                        </a>
-                        <a href="https://wa.me/201024485693" class="social-link" target="_blank" rel="noopener">
-                            <i class="fab fa-whatsapp"></i>
-                            <span>WhatsApp</span>
-                        </a>
-                    </div>
-                    
-                    <div class="cv-download">
-                        <a href="assets/cv.pdf" class="btn btn-primary" download>
-                            <i class="fas fa-download"></i>
-                            تحميل السيرة الذاتية
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <p>&copy; 2024 يوسف أحمد محمد. جميع الحقوق محفوظة.</p>
-                <p>صُمم بـ <i class="fas fa-heart"></i> باستخدام HTML, CSS & JavaScript</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Portfolio Modal -->
-    <div class="modal" id="portfolio-modal">
-        <div class="modal-content">
-            <span class="modal-close">&times;</span>
-            <div class="modal-body">
-                <div class="modal-image">
-                    <img src="" alt="" id="modal-img">
-                </div>
-                <div class="modal-info">
-                    <h3 id="modal-title"></h3>
-                    <p id="modal-description"></p>
-                    <div class="modal-tags" id="modal-tags"></div>
-                    <div class="modal-links" id="modal-links"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyBfn9AKE0Ne4oFOJ1GVFQYglMqE6By5QL4",
-            authDomain: "crypto-symbol-425311-u3.firebaseapp.com",
-            projectId: "crypto-symbol-425311-u3",
-            storageBucket: "crypto-symbol-425311-u3.firebasestorage.app",
-            messagingSenderId: "872426620136",
-            appId: "1:872426620136:web:aca581f3f225e0494a755d",
-            measurementId: "G-CBXFHHN3YB"
-        };
-        
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        
-        // Make Firebase available globally
-        window.firebaseApp = app;
-        window.firebaseDb = db;
-    </script>
-
-    <!-- Scripts -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="script.js"></script>
-</body>
-</html>
-
