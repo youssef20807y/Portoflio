@@ -40,6 +40,9 @@
                 <li class="nav-item">
                     <a href="#contact" class="nav-link">تواصل معي</a>
                 </li>
+                <li class="nav-item">
+                    <a href="#comments" class="nav-link">التعليقات</a>
+                </li>
             </ul>
             <div class="nav-toggle" id="nav-toggle">
                 <span class="bar"></span>
@@ -255,6 +258,79 @@
         </div>
     </section>
 
+    <!-- Comments Section -->
+    <section id="comments" class="comments-section">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">
+                    <span class="title-icon">💭</span>
+                    التعليقات
+                    <span class="title-decoration"></span>
+                </h2>
+                <p class="section-subtitle">شاركنا رأيك أو اترك تعليقاً - كل كلمة تهمنا</p>
+                <div class="section-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="total-comments">0</span>
+                        <span class="stat-label">تعليق</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-stat="likes">0</span>
+                        <span class="stat-label">❤️ إعجاب</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" data-stat="thumbs">0</span>
+                        <span class="stat-label">👍 تقييم</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comment Form -->
+            <div class="comment-form-container" data-aos="fade-up" data-aos-delay="100">
+                <form class="comment-form" id="comment-form">
+                    <div class="form-group">
+                        <label for="comment-name">الاسم</label>
+                        <input type="text" id="comment-name" name="name" required placeholder="اكتب اسمك">
+                    </div>
+                    <div class="form-group">
+                        <label for="comment-email">البريد الإلكتروني (اختياري)</label>
+                        <input type="email" id="comment-email" name="email" placeholder="example@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="comment-text">التعليق</label>
+                        <textarea id="comment-text" name="comment" required rows="4" placeholder="اكتب تعليقك هنا..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary comment-submit">
+                        <i class="fas fa-paper-plane"></i>
+                        إرسال التعليق
+                    </button>
+                </form>
+            </div>
+
+            <!-- Comments List -->
+            <div class="comments-container" data-aos="fade-up" data-aos-delay="200">
+                <div class="comments-header">
+                    <h3>التعليقات (<span id="comments-count">0</span>)</h3>
+                    <div class="comments-sort">
+                        <select id="comments-sort">
+                            <option value="newest">الأحدث أولاً</option>
+                            <option value="oldest">الأقدم أولاً</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="comments-list" id="comments-list">
+                    <div class="comments-loading" id="comments-loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <span>جاري تحميل التعليقات...</span>
+                    </div>
+                    <div class="no-comments" id="no-comments" style="display: none;">
+                        <i class="fas fa-comments"></i>
+                        <p>لا توجد تعليقات بعد. كن أول من يعلق!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Contact Section -->
     <section id="contact" class="contact-section">
         <div class="container">
@@ -328,7 +404,6 @@
         </div>
     </section>
 
-    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -355,6 +430,30 @@
             </div>
         </div>
     </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyBfn9AKE0Ne4oFOJ1GVFQYglMqE6By5QL4",
+            authDomain: "crypto-symbol-425311-u3.firebaseapp.com",
+            projectId: "crypto-symbol-425311-u3",
+            storageBucket: "crypto-symbol-425311-u3.firebasestorage.app",
+            messagingSenderId: "872426620136",
+            appId: "1:872426620136:web:aca581f3f225e0494a755d",
+            measurementId: "G-CBXFHHN3YB"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        // Make Firebase available globally
+        window.firebaseApp = app;
+        window.firebaseDb = db;
+    </script>
 
     <!-- Scripts -->
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>

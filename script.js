@@ -2,15 +2,6 @@
 let currentTheme = localStorage.getItem('theme') || 'light';
 let portfolioItems = [];
 
-// ===== AI CHAT CONFIG =====
-const GEMINI_API_KEY = 'AIzaSyAOQEI0I8fUGCUN_kV0wetCfU01YxBFkZY';
-const GEMINI_MODEL = 'gemini-1.5-flash-latest';
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
-const AI_SYSTEM_PROMPT = `عرّف الناس على يوسف أحمد محمد السيد جمعة بالعامية المصرية وكأنك بتحكي عن واحد صاحبك شاطر وفنان. قول إنه طالب ثانوي من دمياط الجديدة، مواليد 2008، مبدع في الجرافيك ديزاين وعنده خبرة قوية في تصميمات السوشيال ميديا والطباعة، وكمان بيعرف يعمل هوية بصرية وبراند كامل للشركات. اشتغل مع شركات زي Printly Printing Services وMahomd Laban Furniture وTasameem Designs، وقدم شغل احترافي بيجمع بين الإبداع والدقة.
-يوسف كمان شاطر في إدارة المحتوى والتسويق الرقمي، وعنده خبرة في تحسين تجربة المستخدم.
-في البرمجة، بيعرف لغات زي Python، Java، CSS، PHP، JavaScript، C#، وVisual Basic، وبيهتم يدمج الذكاء الاصطناعي في التطبيقات والمواقع. عنده شغف بالـ UI/UX وتصميم المواقع بأسلوب جمالي مبهر، وكمان بيقدر يشتغل على مشاريع كبيرة فيها تفاعلات وحركات جذابة.
-يوسف متطوع في جمعية صناع الحياة في دمياط، وشارك في مبادرة أشبال مصر الرقمية، وعمل مشروع أمني كامل على Windows Server يشمل تحليل إعدادات الأمان، جدار الحماية، قواعد IDS، والتشفير، حسب معايير NIST وأفضل ممارسات Microsoft.
-بيحب التصوير، متابعة أحدث تريندات التكنولوجيا، وعنده قدرة على التعلم السريع وحل المشكلات. دمه خفيف، بيحب الهزار، وبيعرف يشتغل تحت ضغط ويطلع شغل فوق الممتاز في المعاد.`;
 
 // ===== PORTFOLIO DATA =====
 const portfolioData = [
@@ -110,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeAnimations();
     initializeContactForm();
     initializeSkills();
-    initializeAIChat();
+    initializeComments();
 });
 
 // ===== THEME MANAGEMENT =====
@@ -785,146 +776,432 @@ function initializeSkills() {
     cards.forEach(v => ringObserver.observe(v));
 }
 
-// ===== AI CHAT WIDGET =====
-function initializeAIChat() {
+
+// ===== COMMENTS SYSTEM =====
+function initializeComments() {
+    // Wait for Firebase to be available
+    const waitForFirebase = () => {
+        if (window.firebaseDb) {
+            setupCommentsSystem();
+        } else {
+            setTimeout(waitForFirebase, 100);
+        }
+    };
+    waitForFirebase();
+}
+
+async function setupCommentsSystem() {
     try {
-        // Floating Action Button
-        const fab = document.createElement('button');
-        fab.className = 'ai-fab';
-        fab.setAttribute('aria-label', 'محادثة الذكاء الاصطناعي');
-        fab.innerHTML = '<i class="fas fa-robot"></i>';
-
-        // Chat container
-        const chat = document.createElement('div');
-        chat.className = 'ai-chat';
-        chat.innerHTML = `
-            <div class="ai-chat-header">
-                <div class="ai-chat-title"><i class="fas fa-robot"></i><span>مساعد الذكاء الاصطناعي</span></div>
-                <button class="ai-chat-close" aria-label="إغلاق">&times;</button>
-            </div>
-            <div class="ai-chat-messages" role="log" aria-live="polite"></div>
-            <form class="ai-chat-input" autocomplete="off">
-                <textarea class="ai-chat-textarea" rows="2" placeholder="اكتب رسالتك هنا..."></textarea>
-                <button class="ai-chat-send" type="submit" aria-label="إرسال"><i class="fas fa-paper-plane"></i></button>
-            </form>
-        `;
-
-        document.body.appendChild(fab);
-        document.body.appendChild(chat);
-
-        const closeBtn = chat.querySelector('.ai-chat-close');
-        const messagesEl = chat.querySelector('.ai-chat-messages');
-        const formEl = chat.querySelector('.ai-chat-input');
-        const textareaEl = chat.querySelector('.ai-chat-textarea');
-        const sendBtn = chat.querySelector('.ai-chat-send');
-
-        let isOpen = false;
-        let isSending = false;
-        const chatHistory = [];
-
-        const openChat = () => {
-            chat.classList.add('open');
-            isOpen = true;
-            setTimeout(() => textareaEl.focus(), 0);
-            if (!messagesEl.dataset.greeted) {
-                addMessage('assistant', 'مرحباً! أنا مساعدك الذكي. كيف يمكنني مساعدتك اليوم؟');
-                messagesEl.dataset.greeted = '1';
-            }
-        };
-        const closeChat = () => { chat.classList.remove('open'); isOpen = false; };
-
-        fab.addEventListener('click', () => {
-            isOpen ? closeChat() : openChat();
-        });
-        closeBtn.addEventListener('click', closeChat);
-
-        formEl.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const text = textareaEl.value.trim();
-            if (!text || isSending) return;
-            textareaEl.value = '';
-            addMessage('user', text);
-            await sendToGemini(text);
-        });
-
-        function addMessage(role, text) {
-            const item = document.createElement('div');
-            item.className = `ai-msg ${role}`;
-            item.innerHTML = `<div class="ai-msg-bubble">${escapeHtml(text).replace(/\n/g, '<br>')}</div>`;
-            messagesEl.appendChild(item);
-            messagesEl.scrollTop = messagesEl.scrollHeight;
+        // Import Firebase functions
+        const { collection, addDoc, getDocs, query, orderBy, onSnapshot, serverTimestamp, doc, updateDoc, increment, getDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        
+        const db = window.firebaseDb;
+        const commentsCollection = collection(db, 'comments');
+        
+        // DOM elements
+        const commentForm = document.getElementById('comment-form');
+        const commentsList = document.getElementById('comments-list');
+        const commentsCount = document.getElementById('comments-count');
+        const commentsSort = document.getElementById('comments-sort');
+        const commentsLoading = document.getElementById('comments-loading');
+        const noComments = document.getElementById('no-comments');
+        
+        let currentSort = 'newest';
+        
+        // Load comments
+        function loadComments() {
+            const sortOrder = currentSort === 'newest' ? 'desc' : 'asc';
+            const q = query(commentsCollection, orderBy('timestamp', sortOrder));
+            
+            onSnapshot(q, (snapshot) => {
+                displayComments(snapshot.docs);
+                commentsLoading.style.display = 'none';
+            });
         }
-
-        function addTyping() {
-            const item = document.createElement('div');
-            item.className = 'ai-msg assistant typing';
-            item.innerHTML = '<div class="ai-msg-bubble"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>';
-            messagesEl.appendChild(item);
-            messagesEl.scrollTop = messagesEl.scrollHeight;
-            return item;
-        }
-
-        async function sendToGemini(userText) {
-            if (!GEMINI_API_KEY) {
-                addMessage('assistant', 'لم يتم ضبط مفتاح API.');
+        
+        // Display comments
+        function displayComments(docs) {
+            const commentsContainer = commentsList.querySelector('.comments-items') || createCommentsContainer();
+            commentsContainer.innerHTML = '';
+            
+            if (docs.length === 0) {
+                noComments.style.display = 'block';
+                commentsCount.textContent = '0';
+                updateTotalComments(0);
                 return;
             }
-            try {
-                isSending = true;
-                textareaEl.disabled = true;
-                sendBtn.disabled = true;
-
-                chatHistory.push({ role: 'user', text: userText });
-                const typingEl = addTyping();
-
-                const contents = chatHistory.map(m => ({
-                    role: m.role === 'user' ? 'user' : 'model',
-                    parts: [{ text: m.text }]
-                }));
-
-                const res = await fetch(`${GEMINI_API_URL}?key=${encodeURIComponent(GEMINI_API_KEY)}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents,
-                        systemInstruction: {
-                            role: 'system',
-                            parts: [{ text: AI_SYSTEM_PROMPT }]
-                        }
-                    })
-                });
-
-                if (!res.ok) {
-                    throw new Error('HTTP ' + res.status);
-                }
-                const data = await res.json();
-                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'تعذر الحصول على رد.';
-
-                typingEl.remove();
-                chatHistory.push({ role: 'assistant', text });
-                addMessage('assistant', text);
-            } catch (err) {
-                addMessage('assistant', 'حدث خطأ أثناء الاتصال بالخدمة. حاول مرة أخرى.');
-                console.error('Gemini error:', err);
-            } finally {
-                isSending = false;
-                textareaEl.disabled = false;
-                sendBtn.disabled = false;
-                textareaEl.focus();
+            
+            noComments.style.display = 'none';
+            commentsCount.textContent = docs.length;
+            updateTotalComments(docs.length);
+            updateReactionStats(docs);
+            
+            docs.forEach((doc, index) => {
+                const comment = doc.data();
+                const commentElement = createCommentElement(comment, index, doc.id);
+                commentsContainer.appendChild(commentElement);
+            });
+        }
+        
+        // Update total comments counter with animation
+        function updateTotalComments(count) {
+            const totalCommentsEl = document.getElementById('total-comments');
+            if (totalCommentsEl) {
+                animateCounter(totalCommentsEl, parseInt(totalCommentsEl.textContent) || 0, count);
             }
         }
-
-        function escapeHtml(str) {
-            return str
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/\"/g, '&quot;')
-                .replace(/'/g, '&#39;');
+        
+        // Update reaction statistics
+        function updateReactionStats(docs) {
+            let totalLikes = 0;
+            let totalThumbsUp = 0;
+            
+            docs.forEach(doc => {
+                const comment = doc.data();
+                if (comment.reactions) {
+                    totalLikes += comment.reactions.like || 0;
+                    totalThumbsUp += comment.reactions['thumbs-up'] || 0;
+                }
+            });
+            
+            // Update stats in header if elements exist
+            const likesStatEl = document.querySelector('[data-stat="likes"]');
+            const thumbsStatEl = document.querySelector('[data-stat="thumbs"]');
+            
+            if (likesStatEl) {
+                animateCounter(likesStatEl, parseInt(likesStatEl.textContent) || 0, totalLikes);
+            }
+            if (thumbsStatEl) {
+                animateCounter(thumbsStatEl, parseInt(thumbsStatEl.textContent) || 0, totalThumbsUp);
+            }
         }
-
+        
+        // Animate counter
+        function animateCounter(element, start, end) {
+            const duration = 1000;
+            const startTime = performance.now();
+            
+            const step = (currentTime) => {
+                const progress = Math.min((currentTime - startTime) / duration, 1);
+                const value = Math.floor(start + (end - start) * progress);
+                element.textContent = value;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(step);
+                }
+            };
+            
+            requestAnimationFrame(step);
+        }
+        
+        // Create comments container
+        function createCommentsContainer() {
+            const container = document.createElement('div');
+            container.className = 'comments-items';
+            commentsList.appendChild(container);
+            return container;
+        }
+        
+        // Create comment element
+        function createCommentElement(comment, index = 0, commentId) {
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'comment-item';
+            commentDiv.setAttribute('data-aos', 'fade-up');
+            commentDiv.setAttribute('data-aos-delay', (index * 100).toString());
+            commentDiv.setAttribute('data-comment-id', commentId);
+            
+            const timestamp = comment.timestamp ? new Date(comment.timestamp.seconds * 1000) : new Date();
+            const timeAgo = getTimeAgo(timestamp);
+            
+            // Generate avatar color based on name
+            const avatarColor = generateAvatarColor(comment.name);
+            const nameInitial = comment.name.charAt(0).toUpperCase();
+            
+            // Get reaction counts from Firebase data
+            const likeCount = comment.reactions?.like || 0;
+            const thumbsUpCount = comment.reactions?.['thumbs-up'] || 0;
+            
+            // Get user ID for tracking reactions (using localStorage for simplicity)
+            const userId = getUserId();
+            const hasLiked = comment.reactedUsers?.like?.includes(userId) || false;
+            const hasThumbsUp = comment.reactedUsers?.['thumbs-up']?.includes(userId) || false;
+            
+            commentDiv.innerHTML = `
+                <div class="comment-avatar" style="--avatar-color: ${avatarColor}">
+                    <div class="avatar-circle">
+                        <span class="avatar-initial">${nameInitial}</span>
+                    </div>
+                    <div class="avatar-status"></div>
+                </div>
+                <div class="comment-content">
+                    <div class="comment-header">
+                        <h4 class="comment-author">${escapeHtml(comment.name)}</h4>
+                        <span class="comment-time">${timeAgo}</span>
+                    </div>
+                    <div class="comment-text-wrapper">
+                        <p class="comment-text">${escapeHtml(comment.comment).replace(/\n/g, '<br>')}</p>
+                        <div class="comment-reactions">
+                            <button class="reaction-btn ${hasLiked ? 'active' : ''}" data-reaction="like" data-comment-id="${commentId}">
+                                <i class="fas fa-heart"></i>
+                                <span>${likeCount}</span>
+                            </button>
+                            <button class="reaction-btn ${hasThumbsUp ? 'active' : ''}" data-reaction="thumbs-up" data-comment-id="${commentId}">
+                                <i class="fas fa-thumbs-up"></i>
+                                <span>${thumbsUpCount}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add click event for reactions
+            const reactionBtns = commentDiv.querySelectorAll('.reaction-btn');
+            reactionBtns.forEach(btn => {
+                btn.addEventListener('click', async function() {
+                    const reactionType = this.getAttribute('data-reaction');
+                    const commentId = this.getAttribute('data-comment-id');
+                    await handleReaction(commentId, reactionType, this);
+                });
+            });
+            
+            return commentDiv;
+        }
+        
+        // Get or create user ID for tracking reactions
+        function getUserId() {
+            let userId = localStorage.getItem('portfolio_user_id');
+            if (!userId) {
+                userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('portfolio_user_id', userId);
+            }
+            return userId;
+        }
+        
+        // Handle reaction click
+        async function handleReaction(commentId, reactionType, buttonElement) {
+            try {
+                const userId = getUserId();
+                const commentRef = doc(db, 'comments', commentId);
+                const commentSnap = await getDoc(commentRef);
+                
+                if (!commentSnap.exists()) {
+                    throw new Error('التعليق غير موجود');
+                }
+                
+                const commentData = commentSnap.data();
+                const reactedUsers = commentData.reactedUsers || { like: [], 'thumbs-up': [] };
+                const reactions = commentData.reactions || { like: 0, 'thumbs-up': 0 };
+                
+                const hasReacted = reactedUsers[reactionType]?.includes(userId) || false;
+                const countSpan = buttonElement.querySelector('span');
+                
+                if (hasReacted) {
+                    // Remove reaction
+                    reactedUsers[reactionType] = reactedUsers[reactionType].filter(id => id !== userId);
+                    reactions[reactionType] = Math.max(0, reactions[reactionType] - 1);
+                    buttonElement.classList.remove('active');
+                } else {
+                    // Add reaction
+                    if (!reactedUsers[reactionType]) {
+                        reactedUsers[reactionType] = [];
+                    }
+                    reactedUsers[reactionType].push(userId);
+                    reactions[reactionType] = reactions[reactionType] + 1;
+                    buttonElement.classList.add('active');
+                }
+                
+                // Update Firebase
+                await updateDoc(commentRef, {
+                    reactions: reactions,
+                    reactedUsers: reactedUsers
+                });
+                
+                // Update UI immediately
+                countSpan.textContent = reactions[reactionType];
+                
+                // Show success animation
+                buttonElement.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    buttonElement.style.transform = '';
+                }, 200);
+                
+                // Create floating reaction effect
+                createFloatingReaction(buttonElement, reactionType, !hasReacted);
+                
+                // Show success message
+                const message = !hasReacted ? 
+                    (reactionType === 'like' ? 'تم إضافة الإعجاب! ❤️' : 'تم إضافة التقييم! 👍') :
+                    (reactionType === 'like' ? 'تم إزالة الإعجاب' : 'تم إزالة التقييم');
+                showNotification(message);
+                
+            } catch (error) {
+                console.error('Error updating reaction:', error);
+                showNotification('حدث خطأ أثناء تحديث التفاعل');
+            }
+        }
+        
+        // Create floating reaction effect
+        function createFloatingReaction(buttonElement, reactionType, isAdding) {
+            const rect = buttonElement.getBoundingClientRect();
+            const floatingElement = document.createElement('div');
+            
+            // Set emoji based on reaction type
+            const emoji = reactionType === 'like' ? '❤️' : '👍';
+            const action = isAdding ? '+1' : '-1';
+            
+            floatingElement.innerHTML = `<span style="margin-right: 5px;">${emoji}</span>${action}`;
+            floatingElement.style.cssText = `
+                position: fixed;
+                left: ${rect.left + rect.width / 2}px;
+                top: ${rect.top}px;
+                font-size: 1.2rem;
+                font-weight: bold;
+                color: ${isAdding ? (reactionType === 'like' ? '#FF6B6B' : '#4ECDC4') : '#666'};
+                pointer-events: none;
+                z-index: 10000;
+                transform: translateX(-50%);
+                transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                opacity: 1;
+            `;
+            
+            document.body.appendChild(floatingElement);
+            
+            // Animate upward and fade out
+            requestAnimationFrame(() => {
+                floatingElement.style.transform = 'translateX(-50%) translateY(-50px) scale(1.2)';
+                floatingElement.style.opacity = '0';
+            });
+            
+            // Remove element after animation
+            setTimeout(() => {
+                if (floatingElement.parentNode) {
+                    floatingElement.parentNode.removeChild(floatingElement);
+                }
+            }, 800);
+        }
+        
+        // Generate avatar color based on name
+        function generateAvatarColor(name) {
+            const colors = [
+                '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7',
+                '#DDA0DD', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E9'
+            ];
+            let hash = 0;
+            for (let i = 0; i < name.length; i++) {
+                hash = name.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return colors[Math.abs(hash) % colors.length];
+        }
+        
+        // Submit comment
+        commentForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = commentForm.querySelector('.comment-submit');
+            const originalText = submitBtn.innerHTML;
+            
+            try {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
+                
+                const formData = new FormData(commentForm);
+                const commentData = {
+                    name: formData.get('name').trim(),
+                    email: formData.get('email').trim(),
+                    comment: formData.get('comment').trim(),
+                    timestamp: serverTimestamp(),
+                    approved: true, // Auto-approve for now
+                    reactions: {
+                        like: 0,
+                        'thumbs-up': 0
+                    },
+                    reactedUsers: {
+                        like: [],
+                        'thumbs-up': []
+                    }
+                };
+                
+                // Validation
+                if (!commentData.name || !commentData.comment) {
+                    throw new Error('الرجاء ملء جميع الحقول المطلوبة');
+                }
+                
+                if (commentData.comment.length < 3) {
+                    throw new Error('التعليق قصير جداً');
+                }
+                
+                if (commentData.comment.length > 1000) {
+                    throw new Error('التعليق طويل جداً (الحد الأقصى 1000 حرف)');
+                }
+                
+                await addDoc(commentsCollection, commentData);
+                
+                // Reset form
+                commentForm.reset();
+                showNotification('تم إرسال التعليق بنجاح!');
+                
+            } catch (error) {
+                console.error('Error adding comment:', error);
+                showNotification('حدث خطأ أثناء إرسال التعليق: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        });
+        
+        // Sort comments
+        commentsSort.addEventListener('change', (e) => {
+            currentSort = e.target.value;
+            loadComments();
+        });
+        
+        // Character counter for comment textarea
+        const commentTextarea = document.getElementById('comment-text');
+        const charCounter = document.createElement('div');
+        charCounter.className = 'char-counter';
+        charCounter.textContent = '0/1000';
+        commentTextarea.parentNode.appendChild(charCounter);
+        
+        commentTextarea.addEventListener('input', (e) => {
+            const length = e.target.value.length;
+            charCounter.textContent = `${length}/1000`;
+            charCounter.style.color = length > 1000 ? '#e74c3c' : '#666';
+        });
+        
+        // Initialize
+        loadComments();
+        
     } catch (error) {
-        console.error('فشل تهيئة دردشة الذكاء الاصطناعي:', error);
+        console.error('Error setting up comments system:', error);
+        commentsLoading.innerHTML = '<p style="color: #e74c3c;">حدث خطأ في تحميل نظام التعليقات</p>';
     }
+}
+
+// Utility function for time ago
+function getTimeAgo(date) {
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+    
+    if (diffInSeconds < 60) {
+        return 'منذ لحظات';
+    } else if (diffInSeconds < 3600) {
+        const minutes = Math.floor(diffInSeconds / 60);
+        return `منذ ${minutes} دقيقة`;
+    } else if (diffInSeconds < 86400) {
+        const hours = Math.floor(diffInSeconds / 3600);
+        return `منذ ${hours} ساعة`;
+    } else if (diffInSeconds < 2592000) {
+        const days = Math.floor(diffInSeconds / 86400);
+        return `منذ ${days} يوم`;
+    } else {
+        return date.toLocaleDateString('ar-EG');
+    }
+}
+
+// Utility function to escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
