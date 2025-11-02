@@ -645,9 +645,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ===== SERVICE WORKER REGISTRATION =====
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
     window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/sw.js')
+        navigator.serviceWorker.register('./sw.js')
             .then(function(registration) {
                 console.log('Service Worker مسجل بنجاح:', registration.scope);
             })
@@ -655,6 +655,8 @@ if ('serviceWorker' in navigator) {
                 console.log('فشل في تسجيل Service Worker:', error);
             });
     });
+} else if (location.protocol === 'file:') {
+    console.log('Service Worker غير مدعوم في بروتوكول file://');
 }
 
 // ===== SKILLS RENDERING =====

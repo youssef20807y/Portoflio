@@ -46,14 +46,16 @@ personal-website/
 
 ## 🚀 كيفية التشغيل
 
-1. **تحميل الملفات**
+1. **استنساخ المستودع**
    ```bash
-   # استخراج الملفات المضغوطة
-   unzip personal-website.zip
-   cd personal-website
+   git clone https://github.com/youssef20807y/portfolio-website.git
+   cd portfolio-website
    ```
 
 2. **تشغيل الموقع محلياً**
+   
+   **⚠️ مهم:** لا تفتح `index.html` مباشرة في المتصفح بسبب قيود CORS. استخدم خادم محلي:
+   
    ```bash
    # باستخدام Python
    python -m http.server 8000
@@ -63,10 +65,32 @@ personal-website/
    
    # أو باستخدام PHP
    php -S localhost:8000
+   
+   # أو باستخدام Live Server في VS Code
+   # انقر بزر الماوس الأيمن على index.html واختر "Open with Live Server"
    ```
 
 3. **فتح الموقع**
    - افتح المتصفح واذهب إلى `http://localhost:8000`
+
+## 🌐 النشر على GitHub Pages
+
+1. **رفع المشروع على GitHub**
+   ```bash
+   git add .
+   git commit -m "Initial commit"
+   git push origin main
+   ```
+
+2. **تفعيل GitHub Pages**
+   - اذهب إلى Settings في المستودع
+   - انتقل إلى قسم Pages
+   - اختر المصدر: Deploy from a branch
+   - اختر الفرع: main
+   - احفظ الإعدادات
+
+3. **الوصول للموقع**
+   - سيكون الموقع متاحاً على: `https://username.github.io/repository-name`
 
 ## 🎨 التخصيص
 
