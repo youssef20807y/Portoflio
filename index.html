@@ -38,10 +38,10 @@
                     <a href="#portfolio" class="nav-link">أعمالي</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#contact" class="nav-link">تواصل معي</a>
+                    <a href="#comments" class="nav-link">التعليقات</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#comments" class="nav-link">التعليقات</a>
+                    <a href="#contact" class="nav-link">تواصل معي</a>
                 </li>
             </ul>
             <div class="nav-toggle" id="nav-toggle">
@@ -367,7 +367,7 @@
                         </div>
                         <div class="contact-details">
                             <h4>الموقع</h4>
-                            <p>دمياط الجديدة، مصر</p>
+                            <p>دمياط شطا 2  مصر</p>
                         </div>
                     </div>
                 </div>
@@ -426,6 +426,104 @@
                     <p id="modal-description"></p>
                     <div class="modal-tags" id="modal-tags"></div>
                     <div class="modal-links" id="modal-links"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reply Modal -->
+    <div class="modal reply-modal" id="reply-modal" style="display: none;">
+        <div class="reply-modal-content">
+            <div class="reply-modal-header">
+                <h3><i class="fas fa-reply"></i> اكتب ردك</h3>
+                <span class="reply-modal-close">&times;</span>
+            </div>
+            <div class="reply-modal-body">
+                <div class="reply-to-info" id="reply-to-info">
+                    <span class="reply-to-label">الرد على:</span>
+                    <span class="reply-to-name" id="reply-to-name"></span>
+                </div>
+                <form class="reply-modal-form" id="reply-modal-form">
+                    <div class="form-group">
+                        <label for="reply-modal-name">
+                            <i class="fas fa-user"></i>
+                            الاسم
+                        </label>
+                        <input type="text" id="reply-modal-name" name="name" required placeholder="اكتب اسمك">
+                    </div>
+                    <div class="form-group">
+                        <label for="reply-modal-email">
+                            <i class="fas fa-envelope"></i>
+                            البريد الإلكتروني (اختياري)
+                        </label>
+                        <input type="email" id="reply-modal-email" name="email" placeholder="example@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="reply-modal-text">
+                            <i class="fas fa-comment-dots"></i>
+                            الرد
+                        </label>
+                        <textarea id="reply-modal-text" name="reply" required rows="5" placeholder="اكتب ردك هنا..."></textarea>
+                        <div class="char-counter" id="reply-char-counter">0/500</div>
+                    </div>
+                    <div class="reply-modal-actions">
+                        <button type="submit" class="btn btn-primary reply-modal-submit">
+                            <i class="fas fa-paper-plane"></i>
+                            إرسال الرد
+                        </button>
+                        <button type="button" class="btn btn-secondary reply-modal-cancel">
+                            <i class="fas fa-times"></i>
+                            إلغاء
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div class="modal admin-modal" id="admin-modal" style="display: none;">
+        <div class="admin-modal-content">
+            <div class="admin-modal-header">
+                <h2><i class="fas fa-shield-alt"></i> لوحة إدارة التعليقات والردود</h2>
+                <span class="admin-modal-close">&times;</span>
+            </div>
+            <div class="admin-modal-body">
+                <div class="admin-tabs">
+                    <button class="admin-tab-btn active" data-tab="comments">
+                        <i class="fas fa-comments"></i>
+                        التعليقات (<span id="admin-comments-count">0</span>)
+                    </button>
+                    <button class="admin-tab-btn" data-tab="replies">
+                        <i class="fas fa-reply-all"></i>
+                        الردود (<span id="admin-replies-count">0</span>)
+                    </button>
+                </div>
+                
+                <div class="admin-tab-content active" id="admin-comments-tab">
+                    <div class="admin-search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="admin-comments-search" placeholder="ابحث في التعليقات...">
+                    </div>
+                    <div class="admin-items-list" id="admin-comments-list">
+                        <div class="admin-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <span>جاري تحميل التعليقات...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="admin-tab-content" id="admin-replies-tab">
+                    <div class="admin-search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="admin-replies-search" placeholder="ابحث في الردود...">
+                    </div>
+                    <div class="admin-items-list" id="admin-replies-list">
+                        <div class="admin-loading">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <span>جاري تحميل الردود...</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

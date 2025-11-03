@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار نظام الردود</title>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            padding: 2rem;
+            background: #f8fafc;
+        }
+        .test-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 0.5rem;
+        }
+        .test-button:hover {
+            background: #3730a3;
+        }
+        .console-output {
+            background: #1f2937;
+            color: #10b981;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-section">
+        <h2>اختبار نظام الردود</h2>
+        <p>استخدم هذه الصفحة لاختبار وتشخيص مشاكل نظام الردود</p>
+        
+        <button class="test-button" onclick="testReplyButton()">اختبار زر الرد</button>
+        <button class="test-button" onclick="testFirebaseConnection()">اختبار اتصال Firebase</button>
+        <button class="test-button" onclick="testCreateReplyForm()">اختبار إنشاء نموذج الرد</button>
+        <button class="test-button" onclick="clearConsole()">مسح وحدة التحكم</button>
+        
+        <div id="console-output" class="console-output">
+            === وحدة تحكم التشخيص ===
+            انقر على الأزرار أعلاه لاختبار النظام
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h3>خطوات التشخيص:</h3>
+        <ol>
+            <li>افتح وحدة تحكم المتصفح (F12)</li>
+            <li>انتقل إلى صفحة التعليقات الرئيسية</li>
+            <li>انقر على زر "رد" تحت أي تعليق</li>
+            <li>راقب الرسائل في وحدة التحكم</li>
+            <li>تحقق من ظهور نموذج الرد</li>
+        </ol>
+    </div>
+
+    <script>
+        const consoleOutput = document.getElementById('console-output');
+        
+        function log(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            consoleOutput.textContent += `\n[${timestamp}] ${message}`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+        
+        function clearConsole() {
+            consoleOutput.textContent = '=== وحدة تحكم التشخيص ===\nتم مسح وحدة التحكم';
+        }
+        
+        function testReplyButton() {
+            log('اختبار زر الرد...');
+            
+            // محاكاة النقر على زر الرد
+            const testCommentId = 'test-comment-123';
+            
+            // إنشاء عنصر تعليق وهمي للاختبار
+            const testComment = document.createElement('div');
+            testComment.className = 'comment-item';
+            testComment.innerHTML = `
+                <div class="comment-reactions">
+                    <button class="reply-btn" data-comment-id="${testCommentId}">
+                        <i class="fas fa-reply"></i>
+                        <span>رد</span>
+                    </button>
+                </div>
+                <div class="replies-container" data-comment-id="${testCommentId}"></div>
+            `;
+            
+            document.body.appendChild(testComment);
+            
+            const replyBtn = testComment.querySelector('.reply-btn');
+            if (replyBtn) {
+                log('✓ تم العثور على زر الرد');
+                
+                // محاكاة النقر
+                replyBtn.click();
+                log('✓ تم النقر على زر الرد');
+                
+                // التحقق من ظهور النموذج
+                setTimeout(() => {
+                    const form = testComment.querySelector('.reply-form');
+                    if (form) {
+                        log('✓ تم إنشاء نموذج الرد بنجاح');
+                    } else {
+                        log('✗ فشل في إنشاء نموذج الرد');
+                    }
+                    
+                    // تنظيف
+                    testComment.remove();
+                }, 500);
+            } else {
+                log('✗ لم يتم العثور على زر الرد');
+            }
+        }
+        
+        function testFirebaseConnection() {
+            log('اختبار اتصال Firebase...');
+            
+            if (typeof window.firebaseDb !== 'undefined') {
+                log('✓ Firebase متصل');
+                log('✓ قاعدة البيانات متاحة');
+            } else {
+                log('✗ Firebase غير متصل');
+                log('تأكد من تحميل Firebase بشكل صحيح');
+            }
+        }
+        
+        function testCreateReplyForm() {
+            log('اختبار إنشاء نموذج الرد...');
+            
+            // إنشاء نموذج رد وهمي
+            const formDiv = document.createElement('div');
+            formDiv.className = 'reply-form';
+            formDiv.innerHTML = `
+                <div class="reply-form-header">
+                    <h4>اكتب ردك</h4>
+                    <button class="close-reply-form" type="button">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form class="reply-form-content">
+                    <div class="form-group">
+                        <input type="text" name="name" required placeholder="اسمك" class="reply-name">
+                    </div>
+                    <div class="form-group">
+                        <textarea name="reply" required rows="3" placeholder="اكتب ردك هنا..." class="reply-text"></textarea>
+                    </div>
+                    <div class="reply-form-actions">
+                        <button type="submit" class="btn btn-primary reply-submit">إرسال الرد</button>
+                        <button type="button" class="btn btn-secondary cancel-reply">إلغاء</button>
+                    </div>
+                </form>
+            `;
+            
+            document.body.appendChild(formDiv);
+            log('✓ تم إنشاء نموذج الرد');
+            
+            // التحقق من العناصر
+            const nameInput = formDiv.querySelector('.reply-name');
+            const textArea = formDiv.querySelector('.reply-text');
+            const submitBtn = formDiv.querySelector('.reply-submit');
+            
+            if (nameInput && textArea && submitBtn) {
+                log('✓ جميع عناصر النموذج موجودة');
+            } else {
+                log('✗ بعض عناصر النموذج مفقودة');
+            }
+            
+            // إزالة النموذج بعد 3 ثوان
+            setTimeout(() => {
+                formDiv.remove();
+                log('تم إزالة نموذج الاختبار');
+            }, 3000);
+        }
+        
+        // تسجيل رسائل وحدة التحكم
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            log('LOG: ' + args.join(' '));
+        };
+        
+        console.error = function(...args) {
+            originalConsoleError.apply(console, args);
+            log('ERROR: ' + args.join(' '));
+        };
+    </script>
+</body>
+</html>
