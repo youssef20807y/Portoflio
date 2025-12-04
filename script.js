@@ -1,6 +1,8 @@
 // ===== GLOBAL VARIABLES =====
 let currentTheme = localStorage.getItem('theme') || 'light';
 let portfolioItems = [];
+let sectionColors = {};
+let colorRefreshInterval;
 
 
 // ===== PORTFOLIO DATA =====
@@ -102,6 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeContactForm();
     initializeSkills();
     initializeComments();
+    initializeDynamicColors();
 });
 
 // ===== THEME MANAGEMENT =====
@@ -1037,7 +1040,7 @@ async function setupCommentsSystem() {
                         <span class="comment-time">${timeAgo}</span>
                     </div>
                     <div class="comment-text-wrapper">
-                        <p class="comment-text">${escapeHtml(comment.comment).replace(/\n/g, '<br>')}</p>
+                        <p class="comment-text">${escapeHtml(comment.text || comment.comment).replace(/\n/g, '<br>')}</p>
                         <div class="comment-reactions">
                             <button class="reaction-btn ${hasLiked ? 'active' : ''}" data-reaction="like" data-comment-id="${commentId}">
                                 <i class="fas fa-heart"></i>
@@ -1733,11 +1736,16 @@ async function setupCommentsSystem() {
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
                 
                 const formData = new FormData(commentForm);
+                
+                // Generate a simple user ID for unauthenticated users
+                const userId = 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                
                 const commentData = {
                     name: formData.get('name').trim(),
                     email: formData.get('email').trim(),
-                    comment: formData.get('comment').trim(),
+                    text: formData.get('comment').trim(), // Changed from 'comment' to 'text'
                     timestamp: serverTimestamp(),
+                    userId: userId, // Add generated user ID
                     approved: true, // Auto-approve for now
                     reactions: {
                         like: 0,
@@ -1750,15 +1758,15 @@ async function setupCommentsSystem() {
                 };
                 
                 // Validation
-                if (!commentData.name || !commentData.comment) {
+                if (!commentData.name || !commentData.text) {
                     throw new Error('الرجاء ملء جميع الحقول المطلوبة');
                 }
                 
-                if (commentData.comment.length < 3) {
+                if (commentData.text.length < 3) {
                     throw new Error('التعليق قصير جداً');
                 }
                 
-                if (commentData.comment.length > 1000) {
+                if (commentData.text.length > 1000) {
                     throw new Error('التعليق طويل جداً (الحد الأقصى 1000 حرف)');
                 }
                 
@@ -2321,7 +2329,7 @@ function createAdminCommentElement(id, comment) {
     div.className = 'admin-item';
     div.setAttribute('data-id', id);
     div.setAttribute('data-type', 'comment');
-    div.setAttribute('data-search-text', `${comment.name} ${comment.email || ''} ${comment.comment}`.toLowerCase());
+    div.setAttribute('data-search-text', `${comment.name} ${comment.email || ''} ${comment.text || comment.comment}`.toLowerCase());
     
     const timestamp = comment.timestamp ? new Date(comment.timestamp.seconds * 1000) : new Date();
     const dateStr = timestamp.toLocaleString('ar-EG');
@@ -2347,7 +2355,7 @@ function createAdminCommentElement(id, comment) {
                 </button>
             </div>
         </div>
-        <div class="admin-item-text">${escapeHtml(comment.comment)}</div>
+        <div class="admin-item-text">${escapeHtml(comment.text || comment.comment)}</div>
         <div class="admin-item-reactions">
             <div class="admin-reaction-stat">
                 <i class="fas fa-heart"></i>

@@ -1,14 +1,62 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow read/write access to comments collection
-    match /comments/{document} {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isValidCommentData() {
+      return request.resource.data.keys().hasAll(['text', 'timestamp']) &&
+             request.resource.data.text is string &&
+             request.resource.data.text.size() > 0 &&
+             request.resource.data.text.size() <= 1000 &&
+             request.resource.data.timestamp is timestamp;
+    }
+    
+    // Comments collection - allow read/write access for all users (temporary fix)
+    match /comments/{commentId} {
+      // Allow read access for everyone
+      allow read: if true;
+      
+      // Allow create for everyone with basic validation
+      allow create: if isValidCommentData();
+      
+      // Allow update for everyone with basic validation
+      allow update: if isValidCommentData();
+      
+      // Allow delete for everyone
+      allow delete: if true;
+    }
+    
+    // Stats collection - allow read/write access for all users (temporary fix)
+    match /stats/{statId} {
+      // Allow read/write access for everyone
       allow read, write: if true;
     }
     
-    // Allow read/write access to stats collection for comment statistics
-    match /stats/{document} {
-      allow read, write: if true;
+    // Replies collection - allow read/write access for all users (temporary fix)
+    match /replies/{replyId} {
+      // Allow read access for everyone
+      allow read: if true;
+      
+      // Allow create for everyone with basic validation
+      allow create: if isValidCommentData();
+      
+      // Allow update for everyone with basic validation
+      allow update: if isValidCommentData();
+      
+      // Allow delete for everyone
+      allow delete: if true;
+    }
+    
+    // User profiles - users can only read/write their own profile
+    match /users/{userId} {
+      // Users can read their own profile
+      allow read: if isAuthenticated() && userId == request.auth.uid;
+      
+      // Users can write their own profile
+      allow write: if isAuthenticated() && userId == request.auth.uid;
     }
   }
 }
