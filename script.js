@@ -2074,6 +2074,12 @@ let yKeyPressTimer = null;
 const Y_KEY_REQUIRED_PRESSES = 5;
 const Y_KEY_TIMEOUT = 2000; // 2 seconds timeout
 
+// Track clicks on the name in header
+let nameClickCount = 0;
+let nameClickTimer = null;
+const NAME_CLICK_REQUIRED = 5;
+const NAME_CLICK_TIMEOUT = 3000; // 3 seconds timeout for name clicks
+
 // Visitor tracking
 let visitorId = localStorage.getItem('visitorId');
 if (!visitorId) {
@@ -2277,6 +2283,83 @@ window.loadAdminVisitors = function() {
         visitorsList.innerHTML = '<div class="error">حدث خطأ أثناء تحميل بيانات الزوار</div>';
     }
 };
+
+// Track clicks on the name in header
+document.addEventListener('DOMContentLoaded', function() {
+    const nameElement = document.querySelector('.nav-logo span');
+    if (nameElement) {
+        nameElement.style.cursor = 'pointer';
+        nameElement.title = 'اضغط 5 مرات لفتح لوحة التحكم';
+        
+        nameElement.addEventListener('click', function() {
+            // Clear previous timer if exists
+            if (nameClickTimer) {
+                clearTimeout(nameClickTimer);
+            }
+            
+            // Increment click count
+            nameClickCount++;
+            
+            // Show progress
+            showNameClickProgress(nameClickCount);
+            
+            // If reached required clicks, open admin panel
+            if (nameClickCount >= NAME_CLICK_REQUIRED) {
+                openAdminPanel();
+                nameClickCount = 0;
+                removeNameClickProgress();
+                return;
+            }
+            
+            // Reset counter after timeout
+            nameClickTimer = setTimeout(() => {
+                nameClickCount = 0;
+                removeNameClickProgress();
+            }, NAME_CLICK_TIMEOUT);
+        });
+    }
+});
+
+// Show name click progress
+function showNameClickProgress(count) {
+    removeNameClickProgress(); // Remove any existing progress indicator
+    
+    const progress = document.createElement('div');
+    progress.id = 'name-click-progress';
+    progress.style.position = 'fixed';
+    progress.style.top = '10px';
+    progress.style.left = '50%';
+    progress.style.transform = 'translateX(-50%)';
+    progress.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+    progress.style.color = 'white';
+    progress.style.padding = '10px 20px';
+    progress.style.borderRadius = '20px';
+    progress.style.zIndex = '9999';
+    progress.style.fontFamily = 'Cairo, sans-serif';
+    progress.style.fontSize = '14px';
+    progress.style.transition = 'opacity 0.5s';
+    progress.textContent = `تم النقر ${count} من ${NAME_CLICK_REQUIRED} مرات`;
+    
+    document.body.appendChild(progress);
+    
+    // Auto-hide after 1.5 seconds
+    setTimeout(() => {
+        progress.style.opacity = '0';
+        setTimeout(() => {
+            if (progress.parentNode) {
+                progress.parentNode.removeChild(progress);
+            }
+        }, 500);
+    }, 1500);
+}
+
+// Remove name click progress
+function removeNameClickProgress() {
+    const existingProgress = document.getElementById('name-click-progress');
+    if (existingProgress && existingProgress.parentNode) {
+        existingProgress.parentNode.removeChild(existingProgress);
+    }
+}
 
 // Track Y key presses
 document.addEventListener('keydown', function(e) {
