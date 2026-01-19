@@ -4,6 +4,13 @@ let portfolioItems = [];
 let sectionColors = {};
 let colorRefreshInterval;
 
+// Initialize dynamic colors if the function exists
+function initializeDynamicColors() {
+    // This function can be implemented if dynamic colors are needed
+    // For now, it's a placeholder to prevent the error
+    console.log('Dynamic colors initialized');
+}
+
 
 // ===== PORTFOLIO DATA =====
 const portfolioData = [
@@ -628,6 +635,15 @@ function initializeAccessibility() {
             }
         });
     });
+}
+
+// Initialize visitor tracking when the page loads
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        collectVisitorInfo();
+    });
+} else {
+    collectVisitorInfo();
 }
 
 // ===== ERROR HANDLING =====
@@ -2058,6 +2074,210 @@ let yKeyPressTimer = null;
 const Y_KEY_REQUIRED_PRESSES = 5;
 const Y_KEY_TIMEOUT = 2000; // 2 seconds timeout
 
+// Visitor tracking
+let visitorId = localStorage.getItem('visitorId');
+if (!visitorId) {
+    visitorId = 'visitor-' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('visitorId', visitorId);
+}
+
+// Collect visitor information
+function collectVisitorInfo() {
+    const visitorInfo = {
+        id: visitorId,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        screenWidth: window.screen.width,
+        screenHeight: window.screen.height,
+        colorDepth: window.screen.colorDepth,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        // Battery API
+        batteryLevel: 'battery' in navigator ? 'available' : 'not available',
+        // Device memory
+        deviceMemory: navigator.deviceMemory || 'not available',
+        // Connection info
+        connection: {
+            effectiveType: navigator.connection?.effectiveType || 'not available',
+            downlink: navigator.connection?.downlink || 'not available',
+            rtt: navigator.connection?.rtt || 'not available'
+        },
+        // Geolocation (will be requested when showing in admin panel)
+        geolocation: {},
+        // Number of visits
+        visitCount: 1
+    };
+
+    // Get battery info if available
+    if ('getBattery' in navigator) {
+        navigator.getBattery().then(battery => {
+            visitorInfo.battery = {
+                level: battery.level * 100 + '%',
+                charging: battery.charging,
+                chargingTime: battery.chargingTime,
+                dischargingTime: battery.dischargingTime
+            };
+            saveVisitorInfo(visitorInfo);
+        }).catch(() => {
+            saveVisitorInfo(visitorInfo);
+        });
+    } else {
+        saveVisitorInfo(visitorInfo);
+    }
+
+    return visitorInfo;
+}
+
+// Save visitor info to localStorage
+function saveVisitorInfo(visitorInfo) {
+    try {
+        // Get existing visitors
+        let visitors = JSON.parse(localStorage.getItem('visitors') || '{}');
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Initialize today's visitors if not exists
+        if (!visitors[today]) {
+            visitors[today] = [];
+        }
+        
+        // Check if visitor already exists today
+        const existingVisitorIndex = visitors[today].findIndex(v => v.id === visitorInfo.id);
+        
+        if (existingVisitorIndex >= 0) {
+            // Update existing visitor
+            visitors[today][existingVisitorIndex].visitCount += 1;
+            visitors[today][existingVisitorIndex].lastVisit = new Date().toISOString();
+        } else {
+            // Add new visitor
+            visitorInfo.firstVisit = new Date().toISOString();
+            visitorInfo.lastVisit = visitorInfo.firstVisit;
+            visitors[today].push(visitorInfo);
+        }
+        
+        // Save to localStorage (keep only last 30 days)
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        
+        const filteredVisitors = {};
+        Object.keys(visitors)
+            .filter(date => new Date(date) >= thirtyDaysAgo)
+            .forEach(date => {
+                filteredVisitors[date] = visitors[date];
+            });
+        
+        localStorage.setItem('visitors', JSON.stringify(filteredVisitors));
+        
+        // Update visitor count in admin panel if it's open
+        updateVisitorCount();
+        
+    } catch (error) {
+        console.error('Error saving visitor info:', error);
+    }
+}
+
+// Update visitor count in admin panel
+function updateVisitorCount() {
+    const visitors = JSON.parse(localStorage.getItem('visitors') || '{}');
+    const today = new Date().toISOString().split('T')[0];
+    const todayVisitors = visitors[today] || [];
+    
+    const visitorCountElement = document.getElementById('admin-visitors-count');
+    if (visitorCountElement) {
+        visitorCountElement.textContent = todayVisitors.length;
+    }
+}
+
+// Load admin visitors
+window.loadAdminVisitors = function() {
+    const visitorsList = document.getElementById('admin-visitors-list');
+    if (!visitorsList) return;
+    
+    visitorsList.innerHTML = '<div class="admin-loading"><i class="fas fa-spinner fa-spin"></i><span>جاري تحميل بيانات الزوار...</span></div>';
+    
+    try {
+        const visitors = JSON.parse(localStorage.getItem('visitors') || '{}');
+        const today = new Date().toISOString().split('T')[0];
+        const todayVisitors = visitors[today] || [];
+        
+        if (todayVisitors.length === 0) {
+            visitorsList.innerHTML = '<div class="no-items">لا توجد بيانات للزوار اليوم</div>';
+            return;
+        }
+        
+        visitorsList.innerHTML = '';
+        
+        // Sort by last visit time (newest first)
+        const sortedVisitors = [...todayVisitors].sort((a, b) => 
+            new Date(b.lastVisit || b.firstVisit) - new Date(a.lastVisit || a.firstVisit)
+        );
+        
+        sortedVisitors.forEach((visitor, index) => {
+            const visitorElement = document.createElement('div');
+            visitorElement.className = 'admin-item';
+            visitorElement.id = `visitor-${visitor.id}`;
+            
+            // Format battery info if available
+            let batteryInfo = 'غير متاح';
+            if (visitor.battery) {
+                batteryInfo = `
+                    <p><strong>حالة البطارية:</strong> ${visitor.battery.level} (${visitor.battery.charging ? 'شحن' : 'غير مشحون'})</p>
+                    ${visitor.battery.charging ? `<p><strong>وقت الشحن المتبقي:</strong> ${visitor.battery.chargingTime > 0 ? (visitor.battery.chargingTime / 60).toFixed(0) + ' دقيقة' : 'غير معروف'}</p>` : ''}
+                `;
+            }
+            
+            // Format connection info
+            let connectionInfo = '';
+            if (visitor.connection) {
+                connectionInfo = `
+                    <p><strong>نوع الاتصال:</strong> ${visitor.connection.effectiveType}</p>
+                    <p><strong>سرعة التحميل:</strong> ${visitor.connection.downlink} Mbps</p>
+                    <p><strong>زمن الاستجابة:</strong> ${visitor.connection.rtt} مللي ثانية</p>
+                `;
+            }
+            
+            visitorElement.innerHTML = `
+                <div class="admin-item-header">
+                    <span class="visitor-number">#${index + 1}</span>
+                    <span class="visitor-id">${visitor.id}</span>
+                    <span class="visitor-time">${new Date(visitor.lastVisit).toLocaleString('ar-EG')}</span>
+                </div>
+                <div class="admin-item-content">
+                    <div class="visitor-info-grid">
+                        <div class="visitor-info-col">
+                            <h4>معلومات الجهاز</h4>
+                            <p><strong>نظام التشغيل:</strong> ${visitor.platform}</p>
+                            <p><strong>المتصفح:</strong> ${visitor.userAgent.split('(')[0]}</p>
+                            <p><strong>اللغة:</strong> ${visitor.language}</p>
+                            <p><strong>الذاكرة:</strong> ${visitor.deviceMemory} GB</p>
+                            ${batteryInfo}
+                        </div>
+                        <div class="visitor-info-col">
+                            <h4>معلومات الشاشة</h4>
+                            <p><strong>الدقة:</strong> ${visitor.screenWidth} × ${visitor.screenHeight}</p>
+                            <p><strong>عمق الألوان:</strong> ${visitor.colorDepth} بت</p>
+                            <p><strong>المنطقة الزمنية:</strong> ${visitor.timezone}</p>
+                            <p><strong>عدد الزيارات:</strong> ${visitor.visitCount || 1}</p>
+                        </div>
+                    </div>
+                    ${connectionInfo}
+                    <div class="visitor-actions">
+                        <button class="btn btn-sm btn-danger" onclick="deleteAdminItem('visitors', '${visitor.id}')">
+                            <i class="fas fa-trash"></i> حذف
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            visitorsList.appendChild(visitorElement);
+        });
+        
+    } catch (error) {
+        console.error('Error loading visitors:', error);
+        visitorsList.innerHTML = '<div class="error">حدث خطأ أثناء تحميل بيانات الزوار</div>';
+    }
+};
+
 // Track Y key presses
 document.addEventListener('keydown', function(e) {
     // Check for 'y' or 'Y' key (keyCode 89 or key 'y')
@@ -2180,12 +2400,18 @@ async function initializeAdminPanel() {
         btn.addEventListener('click', function() {
             const tabName = this.getAttribute('data-tab');
             switchAdminTab(tabName);
+            
+            // Load visitors when the tab is clicked
+            if (tabName === 'visitors') {
+                loadAdminVisitors();
+            }
         });
     });
     
     // Setup search
     const commentsSearch = document.getElementById('admin-comments-search');
     const repliesSearch = document.getElementById('admin-replies-search');
+    const visitorsSearch = document.getElementById('admin-visitors-search');
     
     if (commentsSearch) {
         commentsSearch.addEventListener('input', (e) => {
@@ -2198,6 +2424,15 @@ async function initializeAdminPanel() {
             filterAdminItems('replies', e.target.value);
         });
     }
+    
+    if (visitorsSearch) {
+        visitorsSearch.addEventListener('input', (e) => {
+            filterAdminItems('visitors', e.target.value);
+        });
+    }
+    
+    // Update visitor count
+    updateVisitorCount();
     
     // Load data
     await loadAdminComments();
@@ -2522,6 +2757,37 @@ window.saveAdminItem = async function(type, id) {
 
 // Delete admin item (global function)
 window.deleteAdminItem = async function(type, id) {
+    // Handle visitor deletion
+    if (type === 'visitors') {
+        if (confirm('هل أنت متأكد من حذف بيانات هذا الزائر؟')) {
+            try {
+                const visitors = JSON.parse(localStorage.getItem('visitors') || '{}');
+                const today = new Date().toISOString().split('T')[0];
+                
+                if (visitors[today]) {
+                    visitors[today] = visitors[today].filter(visitor => visitor.id !== id);
+                    localStorage.setItem('visitors', JSON.stringify(visitors));
+                    
+                    // Update UI
+                    const visitorElement = document.getElementById(`visitor-${id}`);
+                    if (visitorElement) {
+                        visitorElement.remove();
+                    }
+                    
+                    // Update count
+                    updateVisitorCount();
+                    
+                    showNotification('تم حذف بيانات الزائر بنجاح');
+                }
+            } catch (error) {
+                console.error('Error deleting visitor:', error);
+                showNotification('حدث خطأ أثناء حذف بيانات الزائر', 'error');
+            }
+        }
+        return;
+    }
+    
+    // Original delete functionality for other types
     if (!confirm('هل أنت متأكد من حذف هذا العنصر؟ لا يمكن التراجع عن هذا الإجراء!')) {
         return;
     }
@@ -2572,19 +2838,12 @@ window.deleteAdminItem = async function(type, id) {
 
 // Filter admin items
 function filterAdminItems(type, searchText) {
-    const listId = type === 'comments' ? 'admin-comments-list' : 'admin-replies-list';
-    const items = document.querySelectorAll(`#${listId} .admin-item`);
-    
-    const search = searchText.toLowerCase().trim();
+    const searchLower = searchText.toLowerCase();
+    const items = document.querySelectorAll(`#admin-${type}-list .admin-item`);
     
     items.forEach(item => {
-        const itemText = item.getAttribute('data-search-text') || '';
-        
-        if (search === '' || itemText.includes(search)) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none';
-        }
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(searchLower) ? 'block' : 'none';
     });
 }
 

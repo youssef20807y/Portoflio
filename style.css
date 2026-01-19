@@ -1228,26 +1228,34 @@ html[dir="rtl"] .timeline-item:nth-child(even) .timeline-dot {
 }
 
 .footer-content i {
-    color: #e74c3c;
-    margin: 0 0.25rem;
+color: #e74c3c;
+margin: 0 0.25rem;
 }
 
 /* ===== MODAL ===== */
 .modal {
-    display: none;
-    position: fixed;
-    z-index: 2000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    backdrop-filter: blur(5px);
+display: none;
+position: fixed;
+z-index: 2000;
+left: 0;
+top: 0;
+width: 100%;
+height: 100%;
+background: rgba(0, 0, 0, 0.8);
+backdrop-filter: blur(5px);
 }
 
 .modal-content {
-    background: var(--bg-primary);
-    margin: 5% auto;
+background: var(--bg-primary);
+margin: 5% auto;
+padding: 0;
+border-radius: 20px;
+width: 90%;
+max-width: 800px;
+max-height: 80vh;
+overflow: hidden;
+position: relative;
+animation: modalSlideIn 0.3s ease;
     padding: 0;
     border-radius: 20px;
     width: 90%;
