@@ -34,6 +34,11 @@ service cloud.firestore {
       // Allow read/write access for everyone
       allow read, write: if true;
     }
+
+    // Visitors collection - allow read/write access for all users (temporary fix)
+    match /visitors/{visitorId} {
+      allow read, write: if true;
+    }
     
     // Replies collection - allow read/write access for all users (temporary fix)
     match /replies/{replyId} {
