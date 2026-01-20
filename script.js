@@ -2081,10 +2081,41 @@ const NAME_CLICK_REQUIRED = 5;
 const NAME_CLICK_TIMEOUT = 3000; // 3 seconds timeout for name clicks
 
 // Visitor tracking
+let visitorTrackingInitialized = false;
 let visitorId = localStorage.getItem('visitorId');
 if (!visitorId) {
     visitorId = 'visitor-' + Math.random().toString(36).substr(2, 9);
     localStorage.setItem('visitorId', visitorId);
+}
+
+function initializeVisitorTracking() {
+    if (visitorTrackingInitialized) {
+        return;
+    }
+
+    const startTime = Date.now();
+
+    const attemptInitialization = () => {
+        if (window.firebaseDb) {
+            visitorTrackingInitialized = true;
+            collectVisitorInfo();
+            updateVisitorCount();
+            return;
+        }
+
+        // Fallback to local storage after 5 seconds if Firebase is unavailable
+        if (Date.now() - startTime > 5000) {
+            console.warn('Firebase not available for visitor tracking, falling back to local storage');
+            visitorTrackingInitialized = true;
+            collectVisitorInfo();
+            updateVisitorCount();
+            return;
+        }
+
+        setTimeout(attemptInitialization, 150);
+    };
+
+    attemptInitialization();
 }
 
 // Collect visitor information
@@ -2106,180 +2137,384 @@ function collectVisitorInfo() {
         // Connection info
         connection: {
             effectiveType: navigator.connection?.effectiveType || 'not available',
-            downlink: navigator.connection?.downlink || 'not available',
-            rtt: navigator.connection?.rtt || 'not available'
+            downlink: navigator.connection?.downlink ?? 'not available',
+            rtt: navigator.connection?.rtt ?? 'not available'
         },
         // Geolocation (will be requested when showing in admin panel)
         geolocation: {},
-        // Number of visits
+        // Number of visits (used for local fallback)
         visitCount: 1
+    };
+
+    const finalizeSave = () => {
+        saveVisitorInfo(visitorInfo).catch(error => {
+            console.error('Error saving visitor info:', error);
+        });
     };
 
     // Get battery info if available
     if ('getBattery' in navigator) {
         navigator.getBattery().then(battery => {
             visitorInfo.battery = {
-                level: battery.level * 100 + '%',
+                level: (battery.level * 100).toFixed(0) + '%',
                 charging: battery.charging,
-                chargingTime: battery.chargingTime,
-                dischargingTime: battery.dischargingTime
+                chargingTime: Number.isFinite(battery.chargingTime) ? battery.chargingTime : null,
+                dischargingTime: Number.isFinite(battery.dischargingTime) ? battery.dischargingTime : null
             };
-            saveVisitorInfo(visitorInfo);
+            finalizeSave();
         }).catch(() => {
-            saveVisitorInfo(visitorInfo);
+            finalizeSave();
         });
     } else {
-        saveVisitorInfo(visitorInfo);
+        finalizeSave();
     }
 
     return visitorInfo;
 }
 
-// Save visitor info to localStorage
-function saveVisitorInfo(visitorInfo) {
+async function saveVisitorInfo(visitorInfo) {
+    if (!window.firebaseDb) {
+        saveVisitorInfoToLocalStorage(visitorInfo);
+        return;
+    }
+
     try {
-        // Get existing visitors
-        let visitors = JSON.parse(localStorage.getItem('visitors') || '{}');
-        const today = new Date().toISOString().split('T')[0];
-        
-        // Initialize today's visitors if not exists
-        if (!visitors[today]) {
-            visitors[today] = [];
-        }
-        
-        // Check if visitor already exists today
-        const existingVisitorIndex = visitors[today].findIndex(v => v.id === visitorInfo.id);
-        
-        if (existingVisitorIndex >= 0) {
-            // Update existing visitor
-            visitors[today][existingVisitorIndex].visitCount += 1;
-            visitors[today][existingVisitorIndex].lastVisit = new Date().toISOString();
+        const { doc, getDoc, setDoc, serverTimestamp, increment } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        const db = window.firebaseDb;
+
+        const visitorRef = doc(db, 'visitors', visitorInfo.id);
+        const snapshot = await getDoc(visitorRef);
+
+        const now = new Date();
+        const todayKey = now.toISOString().split('T')[0];
+        const nowIso = now.toISOString();
+
+        const sanitizedConnection = {
+            effectiveType: visitorInfo.connection?.effectiveType || 'not available',
+            downlink: typeof visitorInfo.connection?.downlink === 'number' ? visitorInfo.connection.downlink : visitorInfo.connection?.downlink || 'not available',
+            rtt: typeof visitorInfo.connection?.rtt === 'number' ? visitorInfo.connection.rtt : visitorInfo.connection?.rtt || 'not available'
+        };
+
+        const batteryInfo = visitorInfo.battery ? {
+            level: visitorInfo.battery.level || 'unknown',
+            charging: Boolean(visitorInfo.battery.charging),
+            chargingTime: Number.isFinite(visitorInfo.battery.chargingTime) ? visitorInfo.battery.chargingTime : null,
+            dischargingTime: Number.isFinite(visitorInfo.battery.dischargingTime) ? visitorInfo.battery.dischargingTime : null
+        } : null;
+
+        const baseData = {
+            id: visitorInfo.id,
+            platform: visitorInfo.platform || 'unknown',
+            userAgent: visitorInfo.userAgent || 'unknown',
+            language: visitorInfo.language || 'unknown',
+            screenWidth: typeof visitorInfo.screenWidth === 'number' ? visitorInfo.screenWidth : null,
+            screenHeight: typeof visitorInfo.screenHeight === 'number' ? visitorInfo.screenHeight : null,
+            colorDepth: typeof visitorInfo.colorDepth === 'number' ? visitorInfo.colorDepth : null,
+            timezone: visitorInfo.timezone || 'unknown',
+            deviceMemory: visitorInfo.deviceMemory || 'not available',
+            connection: sanitizedConnection,
+            battery: batteryInfo,
+            lastVisitDate: todayKey,
+            lastVisitIso: nowIso,
+            updatedAt: serverTimestamp(),
+            lastVisitAt: serverTimestamp()
+        };
+
+        if (snapshot.exists()) {
+            await setDoc(visitorRef, {
+                ...baseData,
+                visitCount: increment(1)
+            }, { merge: true });
         } else {
-            // Add new visitor
-            visitorInfo.firstVisit = new Date().toISOString();
-            visitorInfo.lastVisit = visitorInfo.firstVisit;
-            visitors[today].push(visitorInfo);
-        }
-        
-        // Save to localStorage (keep only last 30 days)
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        
-        const filteredVisitors = {};
-        Object.keys(visitors)
-            .filter(date => new Date(date) >= thirtyDaysAgo)
-            .forEach(date => {
-                filteredVisitors[date] = visitors[date];
+            await setDoc(visitorRef, {
+                ...baseData,
+                firstVisitIso: nowIso,
+                firstVisitAt: serverTimestamp(),
+                createdAt: serverTimestamp(),
+                visitCount: 1
             });
-        
-        localStorage.setItem('visitors', JSON.stringify(filteredVisitors));
-        
-        // Update visitor count in admin panel if it's open
-        updateVisitorCount();
-        
+        }
+
+        await updateVisitorCount();
     } catch (error) {
-        console.error('Error saving visitor info:', error);
+        console.error('Error saving visitor info to Firestore:', error);
+        saveVisitorInfoToLocalStorage(visitorInfo);
     }
 }
 
-// Update visitor count in admin panel
-function updateVisitorCount() {
-    const visitors = JSON.parse(localStorage.getItem('visitors') || '{}');
-    const today = new Date().toISOString().split('T')[0];
-    const todayVisitors = visitors[today] || [];
-    
+// Local storage fallback helpers
+function getLocalVisitorsStore() {
+    try {
+        return JSON.parse(localStorage.getItem('visitors') || '{}');
+    } catch (error) {
+        console.error('Error parsing local visitors store:', error);
+        return {};
+    }
+}
+
+function persistLocalVisitorsStore(store) {
+    try {
+        localStorage.setItem('visitors', JSON.stringify(store));
+    } catch (error) {
+        console.error('Error persisting local visitors store:', error);
+    }
+}
+
+function pruneLocalVisitorsStore(store) {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const filtered = {};
+    Object.keys(store).forEach(dateKey => {
+        if (new Date(dateKey) >= thirtyDaysAgo) {
+            filtered[dateKey] = store[dateKey];
+        }
+    });
+
+    return filtered;
+}
+
+function saveVisitorInfoToLocalStorage(visitorInfo) {
+    try {
+        const store = getLocalVisitorsStore();
+        const todayKey = new Date().toISOString().split('T')[0];
+
+        if (!store[todayKey]) {
+            store[todayKey] = [];
+        }
+
+        const todayVisitors = store[todayKey];
+        const existingIndex = todayVisitors.findIndex(v => v.id === visitorInfo.id);
+
+        if (existingIndex >= 0) {
+            todayVisitors[existingIndex].visitCount = (todayVisitors[existingIndex].visitCount || 1) + 1;
+            todayVisitors[existingIndex].lastVisit = new Date().toISOString();
+        } else {
+            const timestamp = new Date().toISOString();
+            visitorInfo.firstVisit = timestamp;
+            visitorInfo.lastVisit = timestamp;
+            todayVisitors.push(visitorInfo);
+        }
+
+        const prunedStore = pruneLocalVisitorsStore(store);
+        persistLocalVisitorsStore(prunedStore);
+        updateVisitorCountFromLocal();
+    } catch (error) {
+        console.error('Error saving visitor info locally:', error);
+    }
+}
+
+async function updateVisitorCount() {
     const visitorCountElement = document.getElementById('admin-visitors-count');
-    if (visitorCountElement) {
-        visitorCountElement.textContent = todayVisitors.length;
+    if (!visitorCountElement) {
+        return;
+    }
+
+    if (!window.firebaseDb) {
+        updateVisitorCountFromLocal();
+        return;
+    }
+
+    try {
+        const { collection, query, where, getDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        const db = window.firebaseDb;
+        const todayKey = new Date().toISOString().split('T')[0];
+
+        const visitorsQuery = query(
+            collection(db, 'visitors'),
+            where('lastVisitDate', '==', todayKey)
+        );
+
+        const snapshot = await getDocs(visitorsQuery);
+        visitorCountElement.textContent = snapshot.size;
+    } catch (error) {
+        console.error('Error updating visitor count from Firestore:', error);
+        updateVisitorCountFromLocal();
     }
 }
 
-// Load admin visitors
-window.loadAdminVisitors = function() {
+function updateVisitorCountFromLocal() {
+    const visitorCountElement = document.getElementById('admin-visitors-count');
+    if (!visitorCountElement) {
+        return;
+    }
+
+    const store = getLocalVisitorsStore();
+    const todayKey = new Date().toISOString().split('T')[0];
+    const todayVisitors = store[todayKey] || [];
+    visitorCountElement.textContent = todayVisitors.length;
+}
+
+function mapVisitorRecordForDisplay(visitor, index) {
+    const lastVisitDate = visitor.lastVisitDate instanceof Date
+        ? visitor.lastVisitDate
+        : visitor.lastVisit
+            ? new Date(visitor.lastVisit)
+            : visitor.lastVisitIso
+                ? new Date(visitor.lastVisitIso)
+                : visitor.lastVisitAt?.toDate?.() || new Date();
+
+    const platform = visitor.platform || 'unknown';
+    const userAgent = visitor.userAgent || 'unknown';
+    const battery = visitor.battery || null;
+    const connection = visitor.connection || {};
+
+    return {
+        id: visitor.id,
+        index,
+        platform,
+        userAgent,
+        language: visitor.language || 'unknown',
+        deviceMemory: visitor.deviceMemory || 'not available',
+        screenWidth: visitor.screenWidth || 0,
+        screenHeight: visitor.screenHeight || 0,
+        colorDepth: visitor.colorDepth || 0,
+        timezone: visitor.timezone || 'unknown',
+        visitCount: visitor.visitCount || 1,
+        battery,
+        connection: {
+            effectiveType: connection.effectiveType || 'not available',
+            downlink: typeof connection.downlink === 'number' ? connection.downlink : connection.downlink || 'not available',
+            rtt: typeof connection.rtt === 'number' ? connection.rtt : connection.rtt || 'not available'
+        },
+        lastVisitDate
+    };
+}
+
+function renderAdminVisitorsList(container, visitors) {
+    if (!container) {
+        return;
+    }
+
+    if (!Array.isArray(visitors) || visitors.length === 0) {
+        container.innerHTML = '<div class="no-items">لا توجد بيانات للزوار اليوم</div>';
+        return;
+    }
+
+    container.innerHTML = '';
+
+    const sorted = [...visitors].sort((a, b) => b.lastVisitDate - a.lastVisitDate);
+
+    sorted.forEach((visitor, index) => {
+        const mapped = mapVisitorRecordForDisplay(visitor, index + 1);
+        const visitorElement = document.createElement('div');
+        visitorElement.className = 'admin-item';
+        visitorElement.id = `visitor-${mapped.id}`;
+
+        const batteryInfo = mapped.battery ? `
+            <p><strong>حالة البطارية:</strong> ${mapped.battery.level} (${mapped.battery.charging ? 'شحن' : 'غير مشحون'})</p>
+            ${mapped.battery.charging && Number.isFinite(mapped.battery.chargingTime) ? `<p><strong>وقت الشحن المتبقي:</strong> ${(mapped.battery.chargingTime / 60).toFixed(0)} دقيقة</p>` : ''}
+        ` : 'غير متاح';
+
+        const connectionInfo = mapped.connection ? `
+            <p><strong>نوع الاتصال:</strong> ${mapped.connection.effectiveType}</p>
+            <p><strong>سرعة التحميل:</strong> ${mapped.connection.downlink} Mbps</p>
+            <p><strong>زمن الاستجابة:</strong> ${mapped.connection.rtt} مللي ثانية</p>
+        ` : '';
+
+        visitorElement.innerHTML = `
+            <div class="admin-item-header">
+                <span class="visitor-number">#${mapped.index}</span>
+                <span class="visitor-id">${mapped.id}</span>
+                <span class="visitor-time">${mapped.lastVisitDate.toLocaleString('ar-EG')}</span>
+            </div>
+            <div class="admin-item-content">
+                <div class="visitor-info-grid">
+                    <div class="visitor-info-col">
+                        <h4>معلومات الجهاز</h4>
+                        <p><strong>نظام التشغيل:</strong> ${mapped.platform}</p>
+                        <p><strong>المتصفح:</strong> ${mapped.userAgent.split('(')[0]}</p>
+                        <p><strong>اللغة:</strong> ${mapped.language}</p>
+                        <p><strong>الذاكرة:</strong> ${mapped.deviceMemory} GB</p>
+                        ${batteryInfo}
+                    </div>
+                    <div class="visitor-info-col">
+                        <h4>معلومات الشاشة</h4>
+                        <p><strong>الدقة:</strong> ${mapped.screenWidth} × ${mapped.screenHeight}</p>
+                        <p><strong>عمق الألوان:</strong> ${mapped.colorDepth} بت</p>
+                        <p><strong>المنطقة الزمنية:</strong> ${mapped.timezone}</p>
+                        <p><strong>عدد الزيارات:</strong> ${mapped.visitCount}</p>
+                    </div>
+                </div>
+                ${connectionInfo}
+                <div class="visitor-actions">
+                    <button class="btn btn-sm btn-danger" onclick="deleteAdminItem('visitors', '${mapped.id}')">
+                        <i class="fas fa-trash"></i> حذف
+                    </button>
+                </div>
+            </div>
+        `;
+
+        container.appendChild(visitorElement);
+    });
+}
+
+function loadAdminVisitorsFromLocal(container) {
+    const store = getLocalVisitorsStore();
+    const todayKey = new Date().toISOString().split('T')[0];
+    const todayVisitors = store[todayKey] || [];
+
+    const visitorsForDisplay = todayVisitors.map(visitor => ({
+        ...visitor,
+        lastVisitDate: visitor.lastVisit ? new Date(visitor.lastVisit) : new Date()
+    }));
+
+    renderAdminVisitorsList(container, visitorsForDisplay);
+}
+
+window.loadAdminVisitors = async function() {
     const visitorsList = document.getElementById('admin-visitors-list');
     if (!visitorsList) return;
-    
+
     visitorsList.innerHTML = '<div class="admin-loading"><i class="fas fa-spinner fa-spin"></i><span>جاري تحميل بيانات الزوار...</span></div>';
-    
+
+    if (!window.firebaseDb) {
+        loadAdminVisitorsFromLocal(visitorsList);
+        return;
+    }
+
     try {
-        const visitors = JSON.parse(localStorage.getItem('visitors') || '{}');
-        const today = new Date().toISOString().split('T')[0];
-        const todayVisitors = visitors[today] || [];
-        
-        if (todayVisitors.length === 0) {
+        const { collection, query, where, orderBy, getDocs } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+        const db = window.firebaseDb;
+        const todayKey = new Date().toISOString().split('T')[0];
+
+        const visitorsQuery = query(
+            collection(db, 'visitors'),
+            where('lastVisitDate', '==', todayKey),
+            orderBy('lastVisitAt', 'desc')
+        );
+
+        const snapshot = await getDocs(visitorsQuery);
+
+        if (snapshot.empty) {
             visitorsList.innerHTML = '<div class="no-items">لا توجد بيانات للزوار اليوم</div>';
             return;
         }
-        
-        visitorsList.innerHTML = '';
-        
-        // Sort by last visit time (newest first)
-        const sortedVisitors = [...todayVisitors].sort((a, b) => 
-            new Date(b.lastVisit || b.firstVisit) - new Date(a.lastVisit || a.firstVisit)
-        );
-        
-        sortedVisitors.forEach((visitor, index) => {
-            const visitorElement = document.createElement('div');
-            visitorElement.className = 'admin-item';
-            visitorElement.id = `visitor-${visitor.id}`;
-            
-            // Format battery info if available
-            let batteryInfo = 'غير متاح';
-            if (visitor.battery) {
-                batteryInfo = `
-                    <p><strong>حالة البطارية:</strong> ${visitor.battery.level} (${visitor.battery.charging ? 'شحن' : 'غير مشحون'})</p>
-                    ${visitor.battery.charging ? `<p><strong>وقت الشحن المتبقي:</strong> ${visitor.battery.chargingTime > 0 ? (visitor.battery.chargingTime / 60).toFixed(0) + ' دقيقة' : 'غير معروف'}</p>` : ''}
-                `;
-            }
-            
-            // Format connection info
-            let connectionInfo = '';
-            if (visitor.connection) {
-                connectionInfo = `
-                    <p><strong>نوع الاتصال:</strong> ${visitor.connection.effectiveType}</p>
-                    <p><strong>سرعة التحميل:</strong> ${visitor.connection.downlink} Mbps</p>
-                    <p><strong>زمن الاستجابة:</strong> ${visitor.connection.rtt} مللي ثانية</p>
-                `;
-            }
-            
-            visitorElement.innerHTML = `
-                <div class="admin-item-header">
-                    <span class="visitor-number">#${index + 1}</span>
-                    <span class="visitor-id">${visitor.id}</span>
-                    <span class="visitor-time">${new Date(visitor.lastVisit).toLocaleString('ar-EG')}</span>
-                </div>
-                <div class="admin-item-content">
-                    <div class="visitor-info-grid">
-                        <div class="visitor-info-col">
-                            <h4>معلومات الجهاز</h4>
-                            <p><strong>نظام التشغيل:</strong> ${visitor.platform}</p>
-                            <p><strong>المتصفح:</strong> ${visitor.userAgent.split('(')[0]}</p>
-                            <p><strong>اللغة:</strong> ${visitor.language}</p>
-                            <p><strong>الذاكرة:</strong> ${visitor.deviceMemory} GB</p>
-                            ${batteryInfo}
-                        </div>
-                        <div class="visitor-info-col">
-                            <h4>معلومات الشاشة</h4>
-                            <p><strong>الدقة:</strong> ${visitor.screenWidth} × ${visitor.screenHeight}</p>
-                            <p><strong>عمق الألوان:</strong> ${visitor.colorDepth} بت</p>
-                            <p><strong>المنطقة الزمنية:</strong> ${visitor.timezone}</p>
-                            <p><strong>عدد الزيارات:</strong> ${visitor.visitCount || 1}</p>
-                        </div>
-                    </div>
-                    ${connectionInfo}
-                    <div class="visitor-actions">
-                        <button class="btn btn-sm btn-danger" onclick="deleteAdminItem('visitors', '${visitor.id}')">
-                            <i class="fas fa-trash"></i> حذف
-                        </button>
-                    </div>
-                </div>
-            `;
-            
-            visitorsList.appendChild(visitorElement);
+
+        const visitors = snapshot.docs.map(docSnapshot => {
+            const data = docSnapshot.data();
+            const lastVisitDate = data.lastVisitAt?.toDate ? data.lastVisitAt.toDate() : (data.lastVisitIso ? new Date(data.lastVisitIso) : new Date());
+
+            return {
+                id: docSnapshot.id,
+                platform: data.platform,
+                userAgent: data.userAgent,
+                language: data.language,
+                deviceMemory: data.deviceMemory,
+                screenWidth: data.screenWidth,
+                screenHeight: data.screenHeight,
+                colorDepth: data.colorDepth,
+                timezone: data.timezone,
+                visitCount: data.visitCount,
+                battery: data.battery,
+                connection: data.connection,
+                lastVisitDate
+            };
         });
-        
+
+        renderAdminVisitorsList(visitorsList, visitors);
     } catch (error) {
-        console.error('Error loading visitors:', error);
+        console.error('Error loading visitors from Firestore:', error);
         visitorsList.innerHTML = '<div class="error">حدث خطأ أثناء تحميل بيانات الزوار</div>';
     }
 };
