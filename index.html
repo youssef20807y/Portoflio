@@ -28,6 +28,9 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="./style.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpg" href="images/profile.jpg">
 </head>
 <body>
     <!-- Navigation -->
@@ -559,6 +562,48 @@
     <script src="firebase-config.js"></script>
     
     <!-- Firebase SDK -->
+    <!-- Admin Access Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let clickCount = 0;
+            const adminPassword = 'youssef20807y';
+            const adminAccessElement = document.createElement('div');
+            adminAccessElement.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 5px; display: none; z-index: 9999;';
+            document.body.appendChild(adminAccessElement);
+
+            function checkAdminAccess() {
+                clickCount++;
+                
+                if (clickCount === 4) {
+                    adminAccessElement.textContent = 'مرة أخرى للدخول لوحة التحكم';
+                    adminAccessElement.style.display = 'block';
+                    setTimeout(() => {
+                        adminAccessElement.style.display = 'none';
+                    }, 2000);
+                } else if (clickCount >= 5) {
+                    const password = prompt('أدخل كلمة المرور:');
+                    if (password === adminPassword) {
+
+                        clickCount = 0;
+                    } else {
+                        alert('كلمة المرور غير صحيحة');
+                        location.reload();
+                    }
+                }
+                
+                // Reset counter if no clicks for 3 seconds
+                clearTimeout(window.adminClickTimeout);
+                window.adminClickTimeout = setTimeout(() => {
+                    clickCount = 0;
+                    adminAccessElement.style.display = 'none';
+                }, 3000);
+            }
+
+            // Add click event listener to the document
+            document.addEventListener('click', checkAdminAccess);
+        });
+    </script>
+
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';

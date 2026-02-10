@@ -2120,6 +2120,219 @@ function initializeVisitorTracking() {
 
 // Collect visitor information
 function collectVisitorInfo() {
+    // Function to detect device type
+    function getDeviceType() {
+        const ua = navigator.userAgent;
+        if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
+            return 'تابلت';
+        }
+        if (/Mobile|iP(hone|od|ad)|Android|BlackBerry|IEMobile|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(ua)) {
+            return 'موبايل';
+        }
+        return 'حاسوب';
+    }
+
+    // Function to detect manufacturer and model
+    function getDeviceInfo() {
+        const ua = navigator.userAgent;
+        let manufacturer = 'غير معروف';
+        let model = 'غير معروف';
+
+        // iOS devices
+        if (/iPhone/.test(ua)) {
+            manufacturer = 'Apple';
+            const match = ua.match(/iPhone\s+(\w+)/);
+            model = match ? match[1] : 'iPhone';
+        } else if (/iPad/.test(ua)) {
+            manufacturer = 'Apple';
+            model = 'iPad';
+        }
+
+        // Android devices
+        else if (/Android/.test(ua)) {
+            manufacturer = 'Android';
+            const match = ua.match(/Android.*?;\s*([^;)]+)/);
+            if (match) {
+                const deviceInfo = match[1].split(' ');
+                if (deviceInfo.length >= 2) {
+                    manufacturer = deviceInfo[0];
+                    model = deviceInfo.slice(1).join(' ');
+                }
+            }
+        }
+
+        // Samsung
+        else if (/Samsung/.test(ua)) {
+            manufacturer = 'Samsung';
+            const match = ua.match(/Samsung\s+([^;]+)/);
+            model = match ? match[1] : 'Samsung Device';
+        }
+
+        // Other manufacturers
+        else if (/Huawei/.test(ua)) manufacturer = 'Huawei';
+        else if (/Xiaomi/.test(ua)) manufacturer = 'Xiaomi';
+        else if (/Oppo/.test(ua)) manufacturer = 'Oppo';
+        else if (/Vivo/.test(ua)) manufacturer = 'Vivo';
+        else if (/OnePlus/.test(ua)) manufacturer = 'OnePlus';
+        else if (/Sony/.test(ua)) manufacturer = 'Sony';
+        else if (/LG/.test(ua)) manufacturer = 'LG';
+        else if (/HTC/.test(ua)) manufacturer = 'HTC';
+        else if (/Nokia/.test(ua)) manufacturer = 'Nokia';
+        else if (/BlackBerry/.test(ua)) manufacturer = 'BlackBerry';
+
+        return { manufacturer, model };
+    }
+
+    // Function to get OS and version
+    function getOSInfo() {
+        const ua = navigator.userAgent;
+        let os = 'غير معروف';
+        let version = 'غير معروف';
+
+        if (/Windows NT/.test(ua)) {
+            os = 'Windows';
+            const match = ua.match(/Windows NT (\d+\.\d+)/);
+            if (match) {
+                const ver = match[1];
+                if (ver === '10.0') version = '10/11';
+                else if (ver === '6.3') version = '8.1';
+                else if (ver === '6.2') version = '8';
+                else if (ver === '6.1') version = '7';
+                else version = ver;
+            }
+        } else if (/Mac OS X/.test(ua)) {
+            os = 'macOS';
+            const match = ua.match(/Mac OS X (\d+[._]\d+)/);
+            if (match) {
+                version = match[1].replace('_', '.');
+            }
+        } else if (/Linux/.test(ua)) {
+            os = 'Linux';
+        } else if (/Android/.test(ua)) {
+            os = 'Android';
+            const match = ua.match(/Android (\d+\.?\d*)/);
+            if (match) version = match[1];
+        } else if (/iPhone|iPad|iPod/.test(ua)) {
+            os = 'iOS';
+            const match = ua.match(/OS (\d+_\d+)/);
+            if (match) version = match[1].replace('_', '.');
+        }
+
+        return { os, version };
+    }
+
+    // Function to get browser and version
+    function getBrowserInfo() {
+        const ua = navigator.userAgent;
+        let browser = 'غير معروف';
+        let version = 'غير معروف';
+
+        if (/Chrome/.test(ua) && !/Edg/.test(ua)) {
+            browser = 'Chrome';
+            const match = ua.match(/Chrome\/(\d+\.\d+)/);
+            if (match) version = match[1];
+        } else if (/Firefox/.test(ua)) {
+            browser = 'Firefox';
+            const match = ua.match(/Firefox\/(\d+)/);
+            if (match) version = match[1];
+        } else if (/Safari/.test(ua) && !/Chrome/.test(ua)) {
+            browser = 'Safari';
+            const match = ua.match(/Version\/(\d+\.\d+)/);
+            if (match) version = match[1];
+        } else if (/Edg/.test(ua)) {
+            browser = 'Edge';
+            const match = ua.match(/Edg\/(\d+\.\d+)/);
+            if (match) version = match[1];
+        } else if (/Opera|OPR/.test(ua)) {
+            browser = 'Opera';
+            const match = ua.match(/(?:Opera|OPR)\/(\d+\.\d+)/);
+            if (match) version = match[1];
+        }
+
+        return { browser, version };
+    }
+
+    // Function to detect incognito mode
+    function detectIncognitoMode() {
+        return new Promise(resolve => {
+            const fs = window.webkitRequestFileSystem || window.mozRequestFileSystem;
+            if (fs) {
+                fs(0, 0, () => resolve(false), () => resolve(true));
+            } else if ('MozAppearance' in document.documentElement.style) {
+                const db = indexedDB.open('test');
+                db.onerror = () => resolve(true);
+                db.onsuccess = () => resolve(false);
+            } else {
+                resolve('غير قابل للتحديد');
+            }
+        });
+    }
+
+    // Function to check for camera and microphone
+    function checkMediaDevices() {
+        return new Promise(resolve => {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+                resolve({ camera: false, microphone: false });
+                return;
+            }
+
+            navigator.mediaDevices.enumerateDevices()
+                .then(devices => {
+                    const camera = devices.some(device => device.kind === 'videoinput');
+                    const microphone = devices.some(device => device.kind === 'audioinput');
+                    resolve({ camera, microphone });
+                })
+                .catch(() => {
+                    resolve({ camera: false, microphone: false });
+                });
+        });
+    }
+
+    // Function to detect available sensors
+    function detectSensors() {
+        const sensors = [];
+
+        if ('Accelerometer' in window) sensors.push('مسرع');
+        if ('Gyroscope' in window) sensors.push('جيروسكوب');
+        if ('Magnetometer' in window) sensors.push('مغناطيسي');
+        if ('AmbientLightSensor' in window) sensors.push('إضاءة محيطية');
+        if ('ProximitySensor' in window) sensors.push('قرب');
+        if ('GravitySensor' in window) sensors.push('جاذبية');
+
+        return sensors.length > 0 ? sensors.join(', ') : 'لا توجد حساسات متاحة';
+    }
+
+    // Function to detect VPN usage (basic detection)
+    function detectVPN() {
+        // This is a very basic detection and not foolproof
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const language = navigator.language;
+
+        // Check if WebRTC is leaking local IP
+        if (window.RTCPeerConnection) {
+            try {
+                const pc = new RTCPeerConnection({iceServers: []});
+                pc.createDataChannel('');
+                pc.createOffer().then(offer => {
+                    const lines = offer.sdp.split('\n');
+                    const ipLines = lines.filter(line => line.includes('c='));
+                    if (ipLines.length > 0) {
+                        // If we can create WebRTC connection, check for VPN indicators
+                        return 'محتمل';
+                    }
+                });
+            } catch (e) {
+                // WebRTC blocked or not available
+            }
+        }
+
+        return 'غير محدد';
+    }
+
+    const deviceInfo = getDeviceInfo();
+    const osInfo = getOSInfo();
+    const browserInfo = getBrowserInfo();
+
     const visitorInfo = {
         id: visitorId,
         timestamp: new Date().toISOString(),
@@ -2128,27 +2341,52 @@ function collectVisitorInfo() {
         language: navigator.language,
         screenWidth: window.screen.width,
         screenHeight: window.screen.height,
+        screenOrientation: window.screen.orientation ? window.screen.orientation.type : 'غير متاح',
         colorDepth: window.screen.colorDepth,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        // New fields
+        deviceType: getDeviceType(),
+        manufacturer: deviceInfo.manufacturer,
+        mobileModel: deviceInfo.model,
+        operatingSystem: osInfo.os,
+        osVersion: osInfo.version,
+        browser: browserInfo.browser,
+        browserVersion: browserInfo.version,
         // Battery API
         batteryLevel: 'battery' in navigator ? 'available' : 'not available',
-        // Device memory
+        // Device memory (RAM)
         deviceMemory: navigator.deviceMemory || 'not available',
+        // Processor cores
+        hardwareConcurrency: navigator.hardwareConcurrency || 'not available',
         // Connection info
         connection: {
             effectiveType: navigator.connection?.effectiveType || 'not available',
             downlink: navigator.connection?.downlink ?? 'not available',
             rtt: navigator.connection?.rtt ?? 'not available'
         },
+        // Screen size in pixels
+        screenSizePixels: `${window.screen.width} × ${window.screen.height}`,
         // Geolocation (will be requested when showing in admin panel)
         geolocation: {},
         // Number of visits (used for local fallback)
-        visitCount: 1
+        visitCount: 1,
+        // Sensors
+        availableSensors: detectSensors(),
+        // VPN detection
+        vpnUsage: detectVPN(),
+        // Cookie status
+        cookiesEnabled: navigator.cookieEnabled,
+        // Previous visits
+        previousVisits: localStorage.getItem('visitor_visit_count') || 0
     };
 
     const finalizeSave = () => {
-        saveVisitorInfo(visitorInfo).catch(error => {
-            console.error('Error saving visitor info:', error);
+        // Check for incognito mode
+        detectIncognitoMode().then(incognito => {
+            visitorInfo.incognitoMode = incognito === true ? 'نعم' : incognito === false ? 'لا' : incognito;
+            saveVisitorInfo(visitorInfo).catch(error => {
+                console.error('Error saving visitor info:', error);
+            });
         });
     };
 
@@ -2168,6 +2406,12 @@ function collectVisitorInfo() {
     } else {
         finalizeSave();
     }
+
+    // Check for camera and microphone
+    checkMediaDevices().then(media => {
+        visitorInfo.hasCamera = media.camera;
+        visitorInfo.hasMicrophone = media.microphone;
+    });
 
     return visitorInfo;
 }
@@ -2209,9 +2453,27 @@ async function saveVisitorInfo(visitorInfo) {
             language: visitorInfo.language || 'unknown',
             screenWidth: typeof visitorInfo.screenWidth === 'number' ? visitorInfo.screenWidth : null,
             screenHeight: typeof visitorInfo.screenHeight === 'number' ? visitorInfo.screenHeight : null,
+            screenOrientation: visitorInfo.screenOrientation || 'غير متاح',
             colorDepth: typeof visitorInfo.colorDepth === 'number' ? visitorInfo.colorDepth : null,
             timezone: visitorInfo.timezone || 'unknown',
+            // New fields
+            deviceType: visitorInfo.deviceType || 'غير معروف',
+            manufacturer: visitorInfo.manufacturer || 'غير معروف',
+            mobileModel: visitorInfo.mobileModel || 'غير معروف',
+            operatingSystem: visitorInfo.operatingSystem || 'غير معروف',
+            osVersion: visitorInfo.osVersion || 'غير معروف',
+            browser: visitorInfo.browser || 'غير معروف',
+            browserVersion: visitorInfo.browserVersion || 'غير معروف',
             deviceMemory: visitorInfo.deviceMemory || 'not available',
+            hardwareConcurrency: visitorInfo.hardwareConcurrency || 'not available',
+            screenSizePixels: visitorInfo.screenSizePixels || 'غير متاح',
+            availableSensors: visitorInfo.availableSensors || 'لا توجد حساسات متاحة',
+            vpnUsage: visitorInfo.vpnUsage || 'غير محدد',
+            cookiesEnabled: visitorInfo.cookiesEnabled || false,
+            previousVisits: visitorInfo.previousVisits || 0,
+            incognitoMode: visitorInfo.incognitoMode || 'غير قابل للتحديد',
+            hasCamera: visitorInfo.hasCamera || false,
+            hasMicrophone: visitorInfo.hasMicrophone || false,
             connection: sanitizedConnection,
             battery: batteryInfo,
             lastVisitDate: todayKey,
@@ -2359,6 +2621,18 @@ function mapVisitorRecordForDisplay(visitor, index) {
     const battery = visitor.battery || null;
     const connection = visitor.connection || {};
 
+    // Function to determine connection type
+    function getConnectionType() {
+        if (!connection.effectiveType) return 'غير محدد';
+        switch (connection.effectiveType.toLowerCase()) {
+            case '4g': return 'Wi-Fi / 4G';
+            case '3g': return '3G';
+            case '2g': return '2G';
+            case 'slow-2g': return 'بطيء جداً';
+            default: return connection.effectiveType;
+        }
+    }
+
     return {
         id: visitor.id,
         index,
@@ -2368,6 +2642,7 @@ function mapVisitorRecordForDisplay(visitor, index) {
         deviceMemory: visitor.deviceMemory || 'not available',
         screenWidth: visitor.screenWidth || 0,
         screenHeight: visitor.screenHeight || 0,
+        screenOrientation: visitor.screenOrientation || 'غير متاح',
         colorDepth: visitor.colorDepth || 0,
         timezone: visitor.timezone || 'unknown',
         visitCount: visitor.visitCount || 1,
@@ -2377,6 +2652,24 @@ function mapVisitorRecordForDisplay(visitor, index) {
             downlink: typeof connection.downlink === 'number' ? connection.downlink : connection.downlink || 'not available',
             rtt: typeof connection.rtt === 'number' ? connection.rtt : connection.rtt || 'not available'
         },
+        // New fields
+        deviceType: visitor.deviceType || 'غير معروف',
+        manufacturer: visitor.manufacturer || 'غير معروف',
+        mobileModel: visitor.mobileModel || 'غير معروف',
+        operatingSystem: visitor.operatingSystem || 'غير معروف',
+        osVersion: visitor.osVersion || 'غير معروف',
+        browser: visitor.browser || 'غير معروف',
+        browserVersion: visitor.browserVersion || 'غير معروف',
+        hardwareConcurrency: visitor.hardwareConcurrency || 'not available',
+        screenSizePixels: visitor.screenSizePixels || `${visitor.screenWidth || 0} × ${visitor.screenHeight || 0}`,
+        availableSensors: visitor.availableSensors || 'لا توجد حساسات متاحة',
+        vpnUsage: visitor.vpnUsage || 'غير محدد',
+        cookiesEnabled: visitor.cookiesEnabled ? 'مفعل' : 'معطل',
+        previousVisits: visitor.previousVisits || 0,
+        incognitoMode: visitor.incognitoMode || 'غير قابل للتحديد',
+        hasCamera: visitor.hasCamera ? 'نعم' : 'لا',
+        hasMicrophone: visitor.hasMicrophone ? 'نعم' : 'لا',
+        connectionType: getConnectionType(),
         lastVisitDate
     };
 }
@@ -2407,7 +2700,7 @@ function renderAdminVisitorsList(container, visitors) {
         ` : 'غير متاح';
 
         const connectionInfo = mapped.connection ? `
-            <p><strong>نوع الاتصال:</strong> ${mapped.connection.effectiveType}</p>
+            <p><strong>نوع الاتصال:</strong> ${mapped.connectionType}</p>
             <p><strong>سرعة التحميل:</strong> ${mapped.connection.downlink} Mbps</p>
             <p><strong>زمن الاستجابة:</strong> ${mapped.connection.rtt} مللي ثانية</p>
         ` : '';
@@ -2422,21 +2715,41 @@ function renderAdminVisitorsList(container, visitors) {
                 <div class="visitor-info-grid">
                     <div class="visitor-info-col">
                         <h4>معلومات الجهاز</h4>
-                        <p><strong>نظام التشغيل:</strong> ${mapped.platform}</p>
-                        <p><strong>المتصفح:</strong> ${mapped.userAgent.split('(')[0]}</p>
-                        <p><strong>اللغة:</strong> ${mapped.language}</p>
-                        <p><strong>الذاكرة:</strong> ${mapped.deviceMemory} GB</p>
+                        <p><strong>نوع الجهاز:</strong> ${mapped.deviceType}</p>
+                        <p><strong>الشركة المصنعة:</strong> ${mapped.manufacturer}</p>
+                        <p><strong>موديل الموبايل:</strong> ${mapped.mobileModel}</p>
+                        <p><strong>نظام التشغيل:</strong> ${mapped.operatingSystem} ${mapped.osVersion}</p>
+                        <p><strong>إصدار نظام التشغيل:</strong> ${mapped.osVersion}</p>
+                        <p><strong>نوع المعالج:</strong> ${mapped.hardwareConcurrency} نواة</p>
+                        <p><strong>عدد الأنوية:</strong> ${mapped.hardwareConcurrency}</p>
+                        <p><strong>الرام:</strong> ${mapped.deviceMemory} GB</p>
                         ${batteryInfo}
+                        <p><strong>وجود كاميرا:</strong> ${mapped.hasCamera}</p>
+                        <p><strong>وجود ميكروفون:</strong> ${mapped.hasMicrophone}</p>
+                        <p><strong>الحساسات المتاحة:</strong> ${mapped.availableSensors}</p>
                     </div>
                     <div class="visitor-info-col">
-                        <h4>معلومات الشاشة</h4>
-                        <p><strong>الدقة:</strong> ${mapped.screenWidth} × ${mapped.screenHeight}</p>
+                        <h4>معلومات المتصفح والشاشة</h4>
+                        <p><strong>المتصفح:</strong> ${mapped.browser} ${mapped.browserVersion}</p>
+                        <p><strong>إصدار المتصفح:</strong> ${mapped.browserVersion}</p>
+                        <p><strong>دقة الشاشة:</strong> ${mapped.screenWidth} × ${mapped.screenHeight}</p>
+                        <p><strong>حجم الشاشة بالبكسل:</strong> ${mapped.screenSizePixels}</p>
+                        <p><strong>اتجاه الشاشة:</strong> ${mapped.screenOrientation}</p>
                         <p><strong>عمق الألوان:</strong> ${mapped.colorDepth} بت</p>
+                        <p><strong>اللغة:</strong> ${mapped.language}</p>
                         <p><strong>المنطقة الزمنية:</strong> ${mapped.timezone}</p>
+                        <p><strong>حالة الكوكيز:</strong> ${mapped.cookiesEnabled}</p>
+                        <p><strong>وضع التصفح الخفي:</strong> ${mapped.incognitoMode}</p>
+                    </div>
+                    <div class="visitor-info-col">
+                        <h4>معلومات الشبكة والزيارات</h4>
+                        ${connectionInfo}
+                        <p><strong>نوع الاتصال:</strong> ${mapped.connectionType}</p>
+                        <p><strong>استخدام VPN:</strong> ${mapped.vpnUsage}</p>
+                        <p><strong>زيارات سابقة لنفس الموقع:</strong> ${mapped.previousVisits}</p>
                         <p><strong>عدد الزيارات:</strong> ${mapped.visitCount}</p>
                     </div>
                 </div>
-                ${connectionInfo}
                 <div class="visitor-actions">
                     <button class="btn btn-sm btn-danger" onclick="deleteAdminItem('visitors', '${mapped.id}')">
                         <i class="fas fa-trash"></i> حذف
@@ -2503,8 +2816,26 @@ window.loadAdminVisitors = async function() {
                 deviceMemory: data.deviceMemory,
                 screenWidth: data.screenWidth,
                 screenHeight: data.screenHeight,
+                screenOrientation: data.screenOrientation,
                 colorDepth: data.colorDepth,
                 timezone: data.timezone,
+                // New fields
+                deviceType: data.deviceType,
+                manufacturer: data.manufacturer,
+                mobileModel: data.mobileModel,
+                operatingSystem: data.operatingSystem,
+                osVersion: data.osVersion,
+                browser: data.browser,
+                browserVersion: data.browserVersion,
+                hardwareConcurrency: data.hardwareConcurrency,
+                screenSizePixels: data.screenSizePixels,
+                availableSensors: data.availableSensors,
+                vpnUsage: data.vpnUsage,
+                cookiesEnabled: data.cookiesEnabled,
+                previousVisits: data.previousVisits,
+                incognitoMode: data.incognitoMode,
+                hasCamera: data.hasCamera,
+                hasMicrophone: data.hasMicrophone,
                 visitCount: data.visitCount,
                 battery: data.battery,
                 connection: data.connection,
