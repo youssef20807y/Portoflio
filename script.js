@@ -11,6 +11,180 @@ function initializeDynamicColors() {
     console.log('Dynamic colors initialized');
 }
 
+// ===== PHASE 1: VISUAL & UX LOGIC =====
+
+// Premium Custom Cursor Logic
+function initializeCustomCursor() {
+    const dot = document.getElementById('cursor-dot');
+    const outline = document.getElementById('cursor-outline');
+    if (!dot || !outline) return;
+
+    let mouseX = 0;
+    let mouseY = 0;
+    let dotX = 0;
+    let dotY = 0;
+    let outlineX = 0;
+    let outlineY = 0;
+
+    const lerp = (start, end, amt) => (1 - amt) * start + amt * end;
+
+    window.addEventListener('mousemove', (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        document.body.classList.add('cursor-active');
+    });
+
+    function animateCursor() {
+        // Dot follows instantly
+        dotX = lerp(dotX, mouseX, 0.8);
+        dotY = lerp(dotY, mouseY, 0.8);
+        dot.style.left = `${dotX}px`;
+        dot.style.top = `${dotY}px`;
+
+        // Outline follows with slight, snappy lag
+        outlineX = lerp(outlineX, mouseX, 0.35);
+        outlineY = lerp(outlineY, mouseY, 0.35);
+        outline.style.left = `${outlineX}px`;
+        outline.style.top = `${outlineY}px`;
+
+        requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    // Context Detection
+    document.addEventListener('mouseover', (e) => {
+        const target = e.target;
+
+        // Reset classes
+        outline.className = 'cursor-outline';
+        dot.className = 'cursor-dot';
+
+        if (target.closest('a, button, .nav-toggle, .theme-toggle, .social-link, .nav-admin-btn, .scroll-btn')) {
+            outline.classList.add('hover-link');
+            dot.classList.add('hover-link');
+        } else if (target.closest('img, .portfolio-image, .blog-img, .hero-canvas')) {
+            outline.classList.add('hover-image');
+        } else if (target.closest('p, h1, h2, h3, h4, h5, h6, span, li')) {
+            outline.classList.add('hover-text');
+            dot.classList.add('hover-text');
+        }
+    });
+
+    document.addEventListener('mousedown', () => outline.classList.add('active'));
+    document.addEventListener('mouseup', () => outline.classList.remove('active'));
+
+    // Hide when mouse leaves window
+    document.addEventListener('mouseleave', () => document.body.classList.remove('cursor-active'));
+}
+
+// Reading Progress Bar Logic
+function initializeReadingProgress() {
+    const progressBar = document.getElementById('progress-bar');
+    if (!progressBar) return;
+
+    window.addEventListener('scroll', () => {
+        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        progressBar.style.width = scrolled + "%";
+    });
+}
+
+// Scroll to Top Logic
+function initializeScrollToTop() {
+    const scrollBtn = document.getElementById('scroll-btn');
+    if (!scrollBtn) return;
+
+    window.addEventListener('scroll', () => {
+        if (window.pageYOffset > 300) {
+            scrollBtn.classList.add('show');
+        } else {
+            scrollBtn.classList.remove('show');
+        }
+    });
+
+    scrollBtn.addEventListener('click', () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+}
+
+// Auto Theme Detection
+function initializeAutoTheme() {
+    if (!localStorage.getItem('theme')) {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = prefersDark ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        updateThemeIcon(theme);
+    }
+}
+
+function updateThemeIcon(theme) {
+    const themeIcon = document.querySelector('#theme-toggle i');
+    if (themeIcon) {
+        themeIcon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+}
+
+// ===== PHASE 2: ADVANCED ANIMATIONS & PERFORMANCE =====
+
+// Interactive Hero Background (Particles)
+function initializeHeroBackground() {
+    const canvas = document.getElementById('hero-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resize() {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    class Particle {
+        constructor() {
+            this.reset();
+        }
+        reset() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 2 + 1;
+            this.speedX = Math.random() * 0.5 - 0.25;
+            this.speedY = Math.random() * 0.5 - 0.25;
+            this.opacity = Math.random() * 0.5 + 0.1;
+        }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+            if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+        }
+        draw() {
+            ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--primary-color');
+            ctx.globalAlpha = this.opacity;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+
+    for (let i = 0; i < 50; i++) particles.push(new Particle());
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+            p.update();
+            p.draw();
+        });
+        requestAnimationFrame(animate);
+    }
+    animate();
+}
 
 // ===== PORTFOLIO DATA =====
 const portfolioData = [
@@ -22,7 +196,8 @@ const portfolioData = [
         category: "branding",
         tags: ["هوية بصرية", "شعار", "تصميم جرافيك"],
         link: "#",
-        github: "#"
+        github: "#",
+        likes: 12
     },
     {
         id: 2,
@@ -32,7 +207,8 @@ const portfolioData = [
         category: "social",
         tags: ["سوشيال ميديا", "إنستغرام", "فيسبوك"],
         link: "#",
-        github: "#"
+        github: "#",
+        likes: 8
     },
     {
         id: 3,
@@ -42,7 +218,8 @@ const portfolioData = [
         category: "web",
         tags: ["تطوير ويب", "HTML", "CSS", "JavaScript"],
         link: "#",
-        github: "#"
+        github: "#",
+        likes: 15
     },
     {
         id: 4,
@@ -52,7 +229,8 @@ const portfolioData = [
         category: "design",
         tags: ["ملصقات", "إعلانات", "طباعة"],
         link: "#",
-        github: "#"
+        github: "#",
+        likes: 5
     },
     {
         id: 5,
@@ -62,7 +240,8 @@ const portfolioData = [
         category: "web",
         tags: ["تطبيق ويب", "تجارة إلكترونية", "قاعدة بيانات"],
         link: "#",
-        github: "#"
+        github: "#",
+        likes: 21
     },
     {
         id: 6,
@@ -72,7 +251,8 @@ const portfolioData = [
         category: "social",
         tags: ["تسويق رقمي", "حملات", "محتوى"],
         link: "#",
-        github: "#"
+        github: "#",
+        likes: 9
     }
 ];
 
@@ -101,7 +281,13 @@ const skillsData = {
 };
 
 // ===== DOM CONTENT LOADED =====
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+    initializeAutoTheme();
+    initializeCustomCursor();
+    initializeReadingProgress();
+    initializeScrollToTop();
+    initializeHeroBackground();
+
     initializeTheme();
     initializeNavigation();
     initializeScrollEffects();
@@ -118,7 +304,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeTheme() {
     const themeToggle = document.getElementById('theme-toggle');
     const body = document.body;
-    
+
     // Set initial theme
     if (currentTheme === 'dark') {
         body.setAttribute('data-theme', 'dark');
@@ -127,9 +313,9 @@ function initializeTheme() {
         body.removeAttribute('data-theme');
         themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
     }
-    
+
     // Theme toggle event
-    themeToggle.addEventListener('click', function() {
+    themeToggle.addEventListener('click', function () {
         if (currentTheme === 'light') {
             currentTheme = 'dark';
             body.setAttribute('data-theme', 'dark');
@@ -149,37 +335,37 @@ function initializeNavigation() {
     const navMenu = document.getElementById('nav-menu');
     const navLinks = document.querySelectorAll('.nav-link');
     const navbar = document.getElementById('navbar');
-    
+
     // Mobile menu toggle
-    navToggle.addEventListener('click', function() {
+    navToggle.addEventListener('click', function () {
         navMenu.classList.toggle('active');
         navToggle.classList.toggle('active');
     });
-    
+
     // Close mobile menu when clicking on a link
     navLinks.forEach(link => {
-        link.addEventListener('click', function() {
+        link.addEventListener('click', function () {
             navMenu.classList.remove('active');
             navToggle.classList.remove('active');
         });
     });
-    
+
     // Navbar scroll effect
-    window.addEventListener('scroll', function() {
+    window.addEventListener('scroll', function () {
         if (window.scrollY > 100) {
             navbar.classList.add('scrolled');
         } else {
             navbar.classList.remove('scrolled');
         }
     });
-    
+
     // Smooth scrolling for navigation links
     navLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             e.preventDefault();
             const targetId = this.getAttribute('href');
             const targetSection = document.querySelector(targetId);
-            
+
             if (targetSection) {
                 const offsetTop = targetSection.offsetTop - 80;
                 window.scrollTo({
@@ -189,17 +375,17 @@ function initializeNavigation() {
             }
         });
     });
-    
+
     // Active navigation link highlighting
-    window.addEventListener('scroll', function() {
+    window.addEventListener('scroll', function () {
         const sections = document.querySelectorAll('section');
         const scrollPos = window.scrollY + 100;
-        
+
         sections.forEach(section => {
             const sectionTop = section.offsetTop;
             const sectionHeight = section.offsetHeight;
             const sectionId = section.getAttribute('id');
-            
+
             if (scrollPos >= sectionTop && scrollPos < sectionTop + sectionHeight) {
                 navLinks.forEach(link => {
                     link.classList.remove('active');
@@ -214,7 +400,7 @@ function initializeNavigation() {
     // Smooth scroll for hero buttons with navbar offset
     const heroLinks = document.querySelectorAll('.hero-buttons a[href^="#"]');
     heroLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             const targetId = this.getAttribute('href');
             if (targetId && targetId.length > 1) {
                 e.preventDefault();
@@ -239,29 +425,29 @@ function initializeScrollEffects() {
             offset: 100
         });
     }
-    
+
     // Parallax effect for hero background shapes
-    window.addEventListener('scroll', function() {
+    window.addEventListener('scroll', function () {
         const scrolled = window.pageYOffset;
         const shapes = document.querySelectorAll('.bg-shape');
-        
+
         shapes.forEach((shape, index) => {
             const speed = 0.5 + (index * 0.1);
             const yPos = -(scrolled * speed);
             shape.style.transform = `translateY(${yPos}px) rotate(${scrolled * 0.1}deg)`;
         });
     });
-    
+
     // Scroll indicator
     const scrollIndicator = document.querySelector('.scroll-indicator');
     if (scrollIndicator) {
-        scrollIndicator.addEventListener('click', function() {
+        scrollIndicator.addEventListener('click', function () {
             const cvSection = document.getElementById('cv');
             if (cvSection) {
                 cvSection.scrollIntoView({ behavior: 'smooth' });
             }
         });
-        scrollIndicator.addEventListener('keydown', function(e) {
+        scrollIndicator.addEventListener('keydown', function (e) {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 const cvSection = document.getElementById('cv');
@@ -276,21 +462,34 @@ function initializeScrollEffects() {
 // ===== PORTFOLIO =====
 function initializePortfolio() {
     const portfolioGrid = document.getElementById('portfolio-grid');
+    if (!portfolioGrid) return;
+
+    // Show Skeletons during initialization
+    portfolioGrid.innerHTML = Array(6).fill(0).map(() => `
+        <div class="portfolio-item-skeleton" style="padding: 20px;">
+            <div class="skeleton skeleton-card"></div>
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-text"></div>
+        </div>
+    `).join('');
+
+    // Simulate loading delay for better UX
+    setTimeout(() => {
+        renderPortfolioItems(portfolioData);
+        initializePortfolioFilters();
+    }, 1200);
+}
+
+function initializePortfolioFilters() {
     const filterButtons = document.querySelectorAll('.filter-btn');
-    
-    // Render portfolio items
-    renderPortfolioItems(portfolioData);
-    
-    // Filter functionality
+    if (!filterButtons.length) return;
+
     filterButtons.forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
             const filter = this.getAttribute('data-filter');
-            
-            // Update active button
             filterButtons.forEach(btn => btn.classList.remove('active'));
             this.classList.add('active');
-            
-            // Filter items
+
             if (filter === 'all') {
                 renderPortfolioItems(portfolioData);
             } else {
@@ -304,12 +503,12 @@ function initializePortfolio() {
 function renderPortfolioItems(items) {
     const portfolioGrid = document.getElementById('portfolio-grid');
     portfolioGrid.innerHTML = '';
-    
+
     items.forEach((item, index) => {
         const portfolioItem = createPortfolioItem(item, index);
         portfolioGrid.appendChild(portfolioItem);
     });
-    
+
     // Re-initialize AOS for new elements
     if (typeof AOS !== 'undefined') {
         AOS.refresh();
@@ -321,7 +520,9 @@ function createPortfolioItem(item, index) {
     portfolioItem.className = 'portfolio-item';
     portfolioItem.setAttribute('data-aos', 'fade-up');
     portfolioItem.setAttribute('data-aos-delay', (index * 100).toString());
-    
+
+    const isLiked = localStorage.getItem(`like_${item.id}`) === 'true';
+
     portfolioItem.innerHTML = `
         <div class="portfolio-image">
             <img src="${item.image}" alt="${item.title}" loading="lazy">
@@ -335,14 +536,50 @@ function createPortfolioItem(item, index) {
             <div class="portfolio-tags">
                 ${item.tags.map(tag => `<span class="portfolio-tag">${tag}</span>`).join('')}
             </div>
+            <div class="portfolio-actions">
+                <button class="like-btn ${isLiked ? 'active' : ''}" data-id="${item.id}">
+                    <i class="${isLiked ? 'fas' : 'far'} fa-heart"></i>
+                    <span class="like-count">${item.likes || 0}</span>
+                </button>
+                <button class="rate-btn" data-id="${item.id}">
+                    <i class="far fa-star"></i>
+                    <span>تقييم</span>
+                </button>
+            </div>
         </div>
     `;
-    
-    // Add click event to open modal
-    portfolioItem.addEventListener('click', function() {
+
+    // Prevent modal opening when clicking actions
+    portfolioItem.querySelector('.portfolio-actions').addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+
+    // Like button logic
+    const likeBtn = portfolioItem.querySelector('.like-btn');
+    likeBtn.addEventListener('click', (e) => {
+        const id = likeBtn.getAttribute('data-id');
+        const active = likeBtn.classList.toggle('active');
+        const icon = likeBtn.querySelector('i');
+        const countSpan = likeBtn.querySelector('.like-count');
+        let count = parseInt(countSpan.textContent);
+
+        if (active) {
+            icon.className = 'fas fa-heart';
+            count++;
+            localStorage.setItem(`like_${id}`, 'true');
+        } else {
+            icon.className = 'far fa-heart';
+            count--;
+            localStorage.setItem(`like_${id}`, 'false');
+        }
+        countSpan.textContent = count;
+    });
+
+    // Add click event to image/overlay to open modal
+    portfolioItem.querySelector('.portfolio-image').addEventListener('click', function () {
         openPortfolioModal(item);
     });
-    
+
     return portfolioItem;
 }
 
@@ -350,17 +587,17 @@ function createPortfolioItem(item, index) {
 function initializeModal() {
     const modal = document.getElementById('portfolio-modal');
     const closeBtn = document.querySelector('.modal-close');
-    
+
     // Close modal events
     closeBtn.addEventListener('click', closeModal);
-    
-    modal.addEventListener('click', function(e) {
+
+    modal.addEventListener('click', function (e) {
         if (e.target === modal) {
             closeModal();
         }
     });
-    
-    document.addEventListener('keydown', function(e) {
+
+    document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
             closeModal();
         }
@@ -374,18 +611,18 @@ function openPortfolioModal(item) {
     const modalDescription = document.getElementById('modal-description');
     const modalTags = document.getElementById('modal-tags');
     const modalLinks = document.getElementById('modal-links');
-    
+
     // Populate modal content
     modalImg.src = item.image;
     modalImg.alt = item.title;
     modalTitle.textContent = item.title;
     modalDescription.textContent = item.description;
-    
+
     // Tags
-    modalTags.innerHTML = item.tags.map(tag => 
+    modalTags.innerHTML = item.tags.map(tag =>
         `<span class="modal-tag">${tag}</span>`
     ).join('');
-    
+
     // Links
     modalLinks.innerHTML = `
         <a href="${item.link}" class="modal-link" target="_blank">
@@ -397,7 +634,7 @@ function openPortfolioModal(item) {
             الكود المصدري
         </a>
     `;
-    
+
     // Show modal
     modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
@@ -416,7 +653,7 @@ function initializeAnimations() {
     if (heroTitle) {
         const text = heroTitle.textContent;
         heroTitle.textContent = '';
-        
+
         let i = 0;
         const typeWriter = () => {
             if (i < text.length) {
@@ -425,17 +662,17 @@ function initializeAnimations() {
                 setTimeout(typeWriter, 100);
             }
         };
-        
+
         setTimeout(typeWriter, 1000);
     }
-    
+
     // Counter animation for skills
     const skillTags = document.querySelectorAll('.skill-tag');
     const observerOptions = {
         threshold: 0.5,
         rootMargin: '0px 0px -100px 0px'
     };
-    
+
     const skillObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -444,11 +681,11 @@ function initializeAnimations() {
             }
         });
     }, observerOptions);
-    
+
     skillTags.forEach(tag => {
         skillObserver.observe(tag);
     });
-    
+
     // Progress bar animation
     const progressBars = document.querySelectorAll('.progress-bar');
     const progressObserver = new IntersectionObserver((entries) => {
@@ -463,7 +700,7 @@ function initializeAnimations() {
             }
         });
     }, observerOptions);
-    
+
     progressBars.forEach(bar => {
         progressObserver.observe(bar);
     });
@@ -473,13 +710,13 @@ function initializeAnimations() {
 function initializeContactForm() {
     // Add click events to contact items
     const contactItems = document.querySelectorAll('.contact-item');
-    
+
     contactItems.forEach(item => {
-        item.addEventListener('click', function() {
+        item.addEventListener('click', function () {
             const contactDetails = this.querySelector('.contact-details p');
             if (contactDetails) {
                 const text = contactDetails.textContent;
-                
+
                 // Copy to clipboard
                 if (navigator.clipboard) {
                     navigator.clipboard.writeText(text).then(() => {
@@ -498,15 +735,15 @@ function initializeContactForm() {
             }
         });
     });
-    
+
     // Social links hover effects
     const socialLinks = document.querySelectorAll('.social-link');
     socialLinks.forEach(link => {
-        link.addEventListener('mouseenter', function() {
+        link.addEventListener('mouseenter', function () {
             this.style.transform = 'translateY(-3px) scale(1.05)';
         });
-        
-        link.addEventListener('mouseleave', function() {
+
+        link.addEventListener('mouseleave', function () {
             this.style.transform = 'translateY(-3px) scale(1)';
         });
     });
@@ -532,14 +769,14 @@ function showNotification(message) {
         transition: transform 0.3s ease;
         font-weight: 500;
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     // Show notification
     setTimeout(() => {
         notification.style.transform = 'translateX(0)';
     }, 100);
-    
+
     // Hide notification
     setTimeout(() => {
         notification.style.transform = 'translateX(100%)';
@@ -565,7 +802,7 @@ function debounce(func, wait) {
 // Lazy loading for images
 function initializeLazyLoading() {
     const images = document.querySelectorAll('img[loading="lazy"]');
-    
+
     if ('IntersectionObserver' in window) {
         const imageObserver = new IntersectionObserver((entries, observer) => {
             entries.forEach(entry => {
@@ -577,7 +814,7 @@ function initializeLazyLoading() {
                 }
             });
         });
-        
+
         images.forEach(img => imageObserver.observe(img));
     }
 }
@@ -610,25 +847,25 @@ function initializeAccessibility() {
         z-index: 1000;
         transition: top 0.3s;
     `;
-    
-    skipLink.addEventListener('focus', function() {
+
+    skipLink.addEventListener('focus', function () {
         this.style.top = '6px';
     });
-    
-    skipLink.addEventListener('blur', function() {
+
+    skipLink.addEventListener('blur', function () {
         this.style.top = '-40px';
     });
-    
+
     document.body.insertBefore(skipLink, document.body.firstChild);
-    
+
     // Keyboard navigation for portfolio items
     const portfolioItems = document.querySelectorAll('.portfolio-item');
     portfolioItems.forEach((item, index) => {
         item.setAttribute('tabindex', '0');
         item.setAttribute('role', 'button');
         item.setAttribute('aria-label', `عرض تفاصيل المشروع ${index + 1}`);
-        
-        item.addEventListener('keydown', function(e) {
+
+        item.addEventListener('keydown', function (e) {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 this.click();
@@ -647,13 +884,14 @@ if (document.readyState === 'loading') {
 }
 
 // ===== ERROR HANDLING =====
-window.addEventListener('error', function(e) {
-    console.error('خطأ في الموقع:', e.error);
-    // يمكن إضافة تقرير الأخطاء هنا
+window.addEventListener('error', function (e) {
+    if (e.error) {
+        console.error('خطأ في الموقع:', e.error);
+    }
 });
 
 // ===== INITIALIZATION =====
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     try {
         initializeLazyLoading();
         smoothScrollPolyfill();
@@ -665,12 +903,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ===== SERVICE WORKER REGISTRATION =====
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
-    window.addEventListener('load', function() {
+    window.addEventListener('load', function () {
         navigator.serviceWorker.register('./sw.js')
-            .then(function(registration) {
+            .then(function (registration) {
                 console.log('Service Worker مسجل بنجاح:', registration.scope);
             })
-            .catch(function(error) {
+            .catch(function (error) {
                 console.log('فشل في تسجيل Service Worker:', error);
             });
     });
@@ -704,17 +942,17 @@ function initializeSkills() {
         const map = [
             { keys: ['python'], icon: 'fa-brands fa-python', color: '#3776AB' },
             { keys: ['java'], icon: 'fa-brands fa-java', color: '#f89820' },
-            { keys: ['c#','csharp'], icon: 'fa-solid fa-code', color: '#9b4f96' },
-            { keys: ['visual basic','vb'], icon: 'fa-solid fa-terminal', color: '#6b7280' },
+            { keys: ['c#', 'csharp'], icon: 'fa-solid fa-code', color: '#9b4f96' },
+            { keys: ['visual basic', 'vb'], icon: 'fa-solid fa-terminal', color: '#6b7280' },
             { keys: ['php'], icon: 'fa-brands fa-php', color: '#777BB4' },
-            { keys: ['javascript','js'], icon: 'fa-brands fa-js', color: '#f7df1e' },
+            { keys: ['javascript', 'js'], icon: 'fa-brands fa-js', color: '#f7df1e' },
             { keys: ['css'], icon: 'fa-brands fa-css3-alt', color: '#2965f1' },
             { keys: ['html'], icon: 'fa-brands fa-html5', color: '#e34f26' },
             { keys: ['photoshop'], icon: 'fa-solid fa-image', color: '#31a8ff' },
             { keys: ['illustrator'], icon: 'fa-solid fa-pen', color: '#ff9a00' },
-            { keys: ['ui/ux','ux','ui'], icon: 'fa-solid fa-object-group', color: '#8b5cf6' },
-            { keys: ['windows server','windows'], icon: 'fa-brands fa-windows', color: '#00a4ef' },
-            { keys: ['ai','ai tools'], icon: 'fa-solid fa-robot', color: '#06b6d4' },
+            { keys: ['ui/ux', 'ux', 'ui'], icon: 'fa-solid fa-object-group', color: '#8b5cf6' },
+            { keys: ['windows server', 'windows'], icon: 'fa-brands fa-windows', color: '#00a4ef' },
+            { keys: ['ai', 'ai tools'], icon: 'fa-solid fa-robot', color: '#06b6d4' },
             { keys: ['network'], icon: 'fa-solid fa-network-wired', color: '#10b981' }
         ];
         const lower = name.toLowerCase();
@@ -800,6 +1038,17 @@ function initializeSkills() {
 
 // ===== COMMENTS SYSTEM =====
 function initializeComments() {
+    const commentsItems = document.getElementById('comments-items');
+    if (commentsItems) {
+        commentsItems.innerHTML = Array(2).fill(0).map(() => `
+            <div class="skeleton-comment" style="padding: 20px; border-bottom: 1px solid var(--border-color);">
+                <div class="skeleton skeleton-text" style="width: 30%"></div>
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-text" style="width: 80%"></div>
+            </div>
+        `).join('');
+    }
+
     // Wait for Firebase to be available
     const waitForFirebase = () => {
         if (window.firebaseDb) {
@@ -815,10 +1064,10 @@ async function setupCommentsSystem() {
     try {
         // Import Firebase functions
         const { collection, addDoc, getDocs, query, orderBy, onSnapshot, serverTimestamp, doc, updateDoc, increment, getDoc, where } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-        
+
         const db = window.firebaseDb;
         const commentsCollection = collection(db, 'comments');
-        
+
         // DOM elements
         const commentForm = document.getElementById('comment-form');
         const commentsList = document.getElementById('comments-list');
@@ -826,30 +1075,30 @@ async function setupCommentsSystem() {
         const commentsSort = document.getElementById('comments-sort');
         const commentsLoading = document.getElementById('comments-loading');
         const noComments = document.getElementById('no-comments');
-        
+
         let currentSort = 'newest';
         let displayedCommentsCount = 0;
         let allComments = [];
         const COMMENTS_PER_PAGE = 5;
-        
+
         // Load comments
         function loadComments() {
             const sortOrder = currentSort === 'newest' ? 'desc' : 'asc';
             const q = query(commentsCollection, orderBy('timestamp', sortOrder));
-            
+
             onSnapshot(q, (snapshot) => {
                 displayComments(snapshot.docs);
                 commentsLoading.style.display = 'none';
             });
         }
-        
+
         // Display comments
         function displayComments(docs) {
             allComments = docs;
             displayedCommentsCount = 0;
-            const commentsContainer = commentsList.querySelector('.comments-items') || createCommentsContainer();
-            commentsContainer.innerHTML = '';
-            
+            const commentsContainer = document.getElementById('comments-items');
+            if (commentsContainer) commentsContainer.innerHTML = '';
+
             if (docs.length === 0) {
                 noComments.style.display = 'block';
                 commentsCount.textContent = '0';
@@ -857,52 +1106,53 @@ async function setupCommentsSystem() {
                 removeShowMoreButton();
                 return;
             }
-            
+
             noComments.style.display = 'none';
             commentsCount.textContent = docs.length;
             updateTotalComments(docs.length);
             updateReactionStats(docs);
-            
+
             // Display initial comments
             displayMoreComments();
         }
-        
+
         // Display more comments (5 at a time)
         function displayMoreComments() {
-            const commentsContainer = commentsList.querySelector('.comments-items') || createCommentsContainer();
+            const commentsContainer = document.getElementById('comments-items');
+            if (!commentsContainer) return;
             const startIndex = displayedCommentsCount;
             const endIndex = Math.min(startIndex + COMMENTS_PER_PAGE, allComments.length);
-            
+
             for (let i = startIndex; i < endIndex; i++) {
                 const doc = allComments[i];
                 const comment = doc.data();
                 const commentElement = createCommentElement(comment, i, doc.id);
                 commentsContainer.appendChild(commentElement);
-                
+
                 // Load replies for this comment after a short delay to ensure DOM is ready
                 setTimeout(() => {
                     console.log('Loading replies for comment:', doc.id); // للتشخيص
                     loadRepliesForComment(doc.id);
                 }, 200);
             }
-            
+
             displayedCommentsCount = endIndex;
-            
+
             // Update show more button
             updateShowMoreButton();
         }
-        
+
         // Update show more button visibility
         function updateShowMoreButton() {
             const existingButton = commentsList.querySelector('.show-more-btn');
-            
+
             if (displayedCommentsCount < allComments.length) {
                 if (!existingButton) {
                     createShowMoreButton();
                 } else {
                     const remainingComments = allComments.length - displayedCommentsCount;
-                    const buttonText = remainingComments <= COMMENTS_PER_PAGE ? 
-                        `عرض ${remainingComments} تعليق متبقي` : 
+                    const buttonText = remainingComments <= COMMENTS_PER_PAGE ?
+                        `عرض ${remainingComments} تعليق متبقي` :
                         `عرض ${COMMENTS_PER_PAGE} تعليقات أخرى`;
                     existingButton.innerHTML = `<i class="fas fa-chevron-down"></i> ${buttonText}`;
                 }
@@ -910,28 +1160,28 @@ async function setupCommentsSystem() {
                 removeShowMoreButton();
             }
         }
-        
+
         // Create show more button
         function createShowMoreButton() {
             const remainingComments = allComments.length - displayedCommentsCount;
-            const buttonText = remainingComments <= COMMENTS_PER_PAGE ? 
-                `عرض ${remainingComments} تعليق متبقي` : 
+            const buttonText = remainingComments <= COMMENTS_PER_PAGE ?
+                `عرض ${remainingComments} تعليق متبقي` :
                 `عرض ${COMMENTS_PER_PAGE} تعليقات أخرى`;
-                
+
             const showMoreBtn = document.createElement('button');
             showMoreBtn.className = 'show-more-btn btn btn-secondary';
             showMoreBtn.innerHTML = `<i class="fas fa-chevron-down"></i> ${buttonText}`;
-            
-            showMoreBtn.addEventListener('click', function() {
+
+            showMoreBtn.addEventListener('click', function () {
                 this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحميل...';
                 setTimeout(() => {
                     displayMoreComments();
                 }, 300);
             });
-            
+
             commentsList.appendChild(showMoreBtn);
         }
-        
+
         // Remove show more button
         function removeShowMoreButton() {
             const existingButton = commentsList.querySelector('.show-more-btn');
@@ -939,7 +1189,7 @@ async function setupCommentsSystem() {
                 existingButton.remove();
             }
         }
-        
+
         // Update total comments counter with animation
         function updateTotalComments(count) {
             const totalCommentsEl = document.getElementById('total-comments');
@@ -947,12 +1197,12 @@ async function setupCommentsSystem() {
                 animateCounter(totalCommentsEl, parseInt(totalCommentsEl.textContent) || 0, count);
             }
         }
-        
+
         // Update reaction statistics
         function updateReactionStats(docs) {
             let totalLikes = 0;
             let totalThumbsUp = 0;
-            
+
             docs.forEach(doc => {
                 const comment = doc.data();
                 if (comment.reactions) {
@@ -960,11 +1210,11 @@ async function setupCommentsSystem() {
                     totalThumbsUp += comment.reactions['thumbs-up'] || 0;
                 }
             });
-            
+
             // Update stats in header if elements exist
             const likesStatEl = document.querySelector('[data-stat="likes"]');
             const thumbsStatEl = document.querySelector('[data-stat="thumbs"]');
-            
+
             if (likesStatEl) {
                 animateCounter(likesStatEl, parseInt(likesStatEl.textContent) || 0, totalLikes);
             }
@@ -972,25 +1222,25 @@ async function setupCommentsSystem() {
                 animateCounter(thumbsStatEl, parseInt(thumbsStatEl.textContent) || 0, totalThumbsUp);
             }
         }
-        
+
         // Animate counter
         function animateCounter(element, start, end) {
             const duration = 1000;
             const startTime = performance.now();
-            
+
             const step = (currentTime) => {
                 const progress = Math.min((currentTime - startTime) / duration, 1);
                 const value = Math.floor(start + (end - start) * progress);
                 element.textContent = value;
-                
+
                 if (progress < 1) {
                     requestAnimationFrame(step);
                 }
             };
-            
+
             requestAnimationFrame(step);
         }
-        
+
         // Create comments container
         function createCommentsContainer() {
             const container = document.createElement('div');
@@ -998,7 +1248,7 @@ async function setupCommentsSystem() {
             commentsList.appendChild(container);
             return container;
         }
-        
+
         // Create comment element
         function createCommentElement(comment, index = 0, commentId) {
             const commentDiv = document.createElement('div');
@@ -1007,36 +1257,25 @@ async function setupCommentsSystem() {
             commentDiv.setAttribute('data-aos-delay', (index * 100).toString());
             commentDiv.setAttribute('data-comment-id', commentId);
             commentDiv.dataset.authorName = comment.name;
-            
+
             const timestamp = comment.timestamp ? new Date(comment.timestamp.seconds * 1000) : new Date();
             const timeAgo = getTimeAgo(timestamp);
-            
-            // Check if this is admin (يوسف جمعة)
-            const isAdmin = isAdminUser(comment.name);
-            
+
             // Generate avatar color based on name
             const avatarColor = generateAvatarColor(comment.name);
             const nameInitial = comment.name.charAt(0).toUpperCase();
-            
+
             // Get reaction counts from Firebase data
             const likeCount = comment.reactions?.like || 0;
             const thumbsUpCount = comment.reactions?.['thumbs-up'] || 0;
-            
+
             // Get user ID for tracking reactions (using localStorage for simplicity)
             const userId = getUserId();
             const hasLiked = comment.reactedUsers?.like?.includes(userId) || false;
             const hasThumbsUp = comment.reactedUsers?.['thumbs-up']?.includes(userId) || false;
-            
-            // Build avatar HTML based on admin status
-            const avatarHTML = isAdmin ? `
-                <div class="comment-avatar is-admin" style="--avatar-color: ${avatarColor}">
-                    <div class="avatar-circle">
-                        <img src="images/profile.jpg" alt="${escapeHtml(comment.name)}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                        <span class="avatar-initial" style="display:none;">${nameInitial}</span>
-                    </div>
-                    <div class="avatar-status"></div>
-                </div>
-            ` : `
+
+            // Build avatar HTML
+            const avatarHTML = `
                 <div class="comment-avatar" style="--avatar-color: ${avatarColor}">
                     <div class="avatar-circle">
                         <span class="avatar-initial">${nameInitial}</span>
@@ -1044,15 +1283,12 @@ async function setupCommentsSystem() {
                     <div class="avatar-status"></div>
                 </div>
             `;
-            
-            // Build admin badge if applicable
-            const adminBadge = isAdmin ? '<span class="admin-badge"><i class="fas fa-shield-alt"></i> مسؤول</span>' : '';
-            
+
             commentDiv.innerHTML = `
                 ${avatarHTML}
                 <div class="comment-content">
                     <div class="comment-header">
-                        <h4 class="comment-author ${isAdmin ? 'is-admin' : ''}">${adminBadge}${escapeHtml(comment.name)}</h4>
+                        <h4 class="comment-author">${escapeHtml(comment.name)}</h4>
                         <span class="comment-time">${timeAgo}</span>
                     </div>
                     <div class="comment-text-wrapper">
@@ -1078,27 +1314,27 @@ async function setupCommentsSystem() {
                     </div>
                 </div>
             `;
-            
+
             // Add click event for reactions
             const reactionBtns = commentDiv.querySelectorAll('.reaction-btn');
             reactionBtns.forEach(btn => {
-                btn.addEventListener('click', async function() {
+                btn.addEventListener('click', async function () {
                     const reactionType = this.getAttribute('data-reaction');
                     const commentId = this.getAttribute('data-comment-id');
                     await handleReaction(commentId, reactionType, this);
                 });
             });
-            
+
             // Add replies container first
             const repliesContainer = document.createElement('div');
             repliesContainer.className = 'replies-container';
             repliesContainer.setAttribute('data-comment-id', commentId);
             commentDiv.appendChild(repliesContainer);
-            
+
             // Add click event for reply button
             const replyBtn = commentDiv.querySelector('.reply-btn');
             if (replyBtn) {
-                replyBtn.addEventListener('click', function(e) {
+                replyBtn.addEventListener('click', function (e) {
                     e.preventDefault();
                     e.stopPropagation();
                     const commentId = this.getAttribute('data-comment-id');
@@ -1106,32 +1342,32 @@ async function setupCommentsSystem() {
                     toggleReplyForm(commentId, commentDiv);
                 });
             }
-            
+
             // Add click event for show replies button
             const showRepliesBtn = commentDiv.querySelector('.show-replies-btn');
             if (showRepliesBtn) {
-                showRepliesBtn.addEventListener('click', function(e) {
+                showRepliesBtn.addEventListener('click', function (e) {
                     e.preventDefault();
                     e.stopPropagation();
                     const commentId = this.getAttribute('data-comment-id');
                     toggleRepliesVisibility(commentId, commentDiv);
                 });
             }
-            
+
             return commentDiv;
         }
-        
+
         // Toggle reply form (now opens modal)
         function toggleReplyForm(commentId, commentDiv) {
             console.log('Opening reply modal for comment:', commentId);
-            
+
             // Get comment author name from dataset to avoid badge text
             const authorName = commentDiv?.dataset?.authorName || 'التعليق';
-            
+
             // Open reply modal
             openReplyModal(commentId, authorName, 'comment');
         }
-        
+
         // Create reply form
         function createReplyForm(parentCommentId) {
             const formDiv = document.createElement('div');
@@ -1164,32 +1400,32 @@ async function setupCommentsSystem() {
                     </div>
                 </form>
             `;
-            
+
             // Add event listeners
             const closeBtn = formDiv.querySelector('.close-reply-form');
             const cancelBtn = formDiv.querySelector('.cancel-reply');
             const form = formDiv.querySelector('.reply-form-content');
-            
+
             closeBtn.addEventListener('click', () => formDiv.remove());
             cancelBtn.addEventListener('click', () => formDiv.remove());
-            
+
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 await handleReplySubmit(e, parentCommentId, formDiv);
             });
-            
+
             return formDiv;
         }
-        
+
         // Handle reply submission
         async function handleReplySubmit(e, parentCommentId, formDiv) {
             const submitBtn = formDiv.querySelector('.reply-submit');
             const originalText = submitBtn.innerHTML;
-            
+
             try {
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
-                
+
                 const formData = new FormData(e.target);
                 const replyData = {
                     name: formData.get('name').trim(),
@@ -1199,31 +1435,31 @@ async function setupCommentsSystem() {
                     parentCommentId: parentCommentId,
                     approved: true
                 };
-                
+
                 // Validation
                 if (!replyData.name || !replyData.reply) {
                     throw new Error('الرجاء ملء جميع الحقول المطلوبة');
                 }
-                
+
                 if (replyData.reply.length < 3) {
                     throw new Error('الرد قصير جداً');
                 }
-                
+
                 if (replyData.reply.length > 500) {
                     throw new Error('الرد طويل جداً (الحد الأقصى 500 حرف)');
                 }
-                
+
                 // Save reply to Firebase
                 await addDoc(collection(db, 'replies'), replyData);
-                
+
                 // Remove form
                 formDiv.remove();
                 showNotification('تم إرسال الرد بنجاح!');
-                
+
                 // Reload replies for this comment
                 console.log('Reloading replies after submission for:', parentCommentId); // للتشخيص
                 await loadRepliesForComment(parentCommentId);
-                
+
             } catch (error) {
                 console.error('Error adding reply:', error);
                 showNotification('حدث خطأ أثناء إرسال الرد: ' + error.message);
@@ -1232,48 +1468,48 @@ async function setupCommentsSystem() {
                 submitBtn.innerHTML = originalText;
             }
         }
-        
+
         // Load replies for a specific comment
         async function loadRepliesForComment(commentId) {
             console.log('loadRepliesForComment called for:', commentId); // للتشخيص
-            
+
             try {
                 // جلب جميع الردود للتعليق
                 const repliesQuery = query(
-                    collection(db, 'replies'), 
+                    collection(db, 'replies'),
                     where('parentCommentId', '==', commentId)
                 );
-                
+
                 console.log('Executing replies query...'); // للتشخيص
                 const repliesSnapshot = await getDocs(repliesQuery);
                 console.log('Total replies found:', repliesSnapshot.docs.length); // للتشخيص
-                
+
                 let replies = repliesSnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
                 }));
-                
+
                 // تصفية الردود لإظهار فقط الردود المباشرة (بدون parentReplyId)
                 const nestedRepliesCount = replies.filter(r => r.parentReplyId).length;
                 replies = replies.filter(reply => !reply.parentReplyId);
                 console.log('Direct replies:', replies.length, '| Nested replies (filtered out):', nestedRepliesCount); // للتشخيص
-                
+
                 // Sort replies manually by timestamp
                 replies.sort((a, b) => {
                     const timeA = a.timestamp ? a.timestamp.seconds : 0;
                     const timeB = b.timestamp ? b.timestamp.seconds : 0;
                     return timeA - timeB; // ascending order
                 });
-                
+
                 const repliesContainer = document.querySelector(`[data-comment-id="${commentId}"].replies-container`);
                 console.log('Replies container found:', !!repliesContainer); // للتشخيص
-                
+
                 if (repliesContainer) {
                     displayReplies(replies, repliesContainer, commentId);
                 } else {
                     console.error('Replies container not found for comment:', commentId);
                 }
-                
+
             } catch (error) {
                 console.error('Error loading replies for comment', commentId, ':', error);
                 // Show user-friendly message with retry option
@@ -1292,12 +1528,12 @@ async function setupCommentsSystem() {
                 }
             }
         }
-        
+
         // Display replies
         function displayReplies(replies, container, parentCommentId) {
             console.log('displayReplies called with', replies.length, 'replies'); // للتشخيص
             container.innerHTML = '';
-            
+
             // تحديث زر عرض الردود في أزرار التفاعل
             const commentElement = container.closest('.comment-item');
             const showRepliesBtn = commentElement?.querySelector('.show-replies-btn');
@@ -1311,39 +1547,39 @@ async function setupCommentsSystem() {
                     showRepliesBtn.style.display = 'none';
                 }
             }
-            
+
             if (replies.length === 0) {
                 console.log('No replies to display'); // للتشخيص
                 return;
             }
-            
+
             const repliesList = document.createElement('div');
             repliesList.className = 'replies-list';
             repliesList.setAttribute('data-comment-id', parentCommentId);
-            
+
             // دائماً إخفاء الردود افتراضياً
             repliesList.style.display = 'none';
-            
+
             replies.forEach((reply, index) => {
                 const replyElement = createReplyElement(reply, index);
                 repliesList.appendChild(replyElement);
             });
-            
+
             container.appendChild(repliesList);
             console.log('Replies created and hidden, awaiting user click on show button');
         }
-        
+
         // Toggle replies visibility من زر التفاعل
         function toggleRepliesVisibility(commentId, commentElement) {
             const repliesContainer = commentElement.querySelector('.replies-container');
             const repliesList = repliesContainer?.querySelector('.replies-list');
             const showRepliesBtn = commentElement.querySelector('.show-replies-btn');
-            
+
             if (!repliesList || !showRepliesBtn) return;
-            
+
             const isVisible = showRepliesBtn.getAttribute('data-replies-visible') === 'true';
             const icon = showRepliesBtn.querySelector('i.fa-comments');
-            
+
             if (isVisible) {
                 // إخفاء الردود
                 repliesList.style.opacity = '0';
@@ -1367,53 +1603,40 @@ async function setupCommentsSystem() {
                 icon.className = 'fas fa-comments active';
             }
         }
-        
+
         // Create reply element
         function createReplyElement(reply, index = 0, depth = 0) {
             const replyDiv = document.createElement('div');
             replyDiv.className = 'reply-item';
             replyDiv.dataset.authorName = reply.name;
-            
+
             // إضافة خاصية العمق مع أيقونة مناسبة
             if (depth > 0) {
                 replyDiv.setAttribute('data-depth', depth);
                 // إضافة class لتمييز الردود المتداخلة
                 replyDiv.classList.add('is-nested-reply');
             }
-            
+
             // تعطيل AOS مؤقتاً للتأكد من الظهور
             // replyDiv.setAttribute('data-aos', 'fade-up');
             // replyDiv.setAttribute('data-aos-delay', (index * 100).toString());
-            
+
             const timestamp = reply.timestamp ? new Date(reply.timestamp.seconds * 1000) : new Date();
             const timeAgo = getTimeAgo(timestamp);
-            
-            // Check if this is admin (يوسف جمعة)
-            const isAdmin = isAdminUser(reply.name);
-            
+
             // Generate avatar color based on name
             const avatarColor = generateAvatarColor(reply.name);
             const nameInitial = reply.name.charAt(0).toUpperCase();
-            
-            // Build avatar HTML based on admin status
-            const avatarHTML = isAdmin ? `
-                <div class="reply-avatar is-admin" style="--avatar-color: ${avatarColor}">
-                    <div class="avatar-circle">
-                        <img src="images/profile.jpg" alt="${escapeHtml(reply.name)}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                        <span class="avatar-initial" style="display:none;">${nameInitial}</span>
-                    </div>
-                </div>
-            ` : `
+
+            // Build avatar HTML
+            const avatarHTML = `
                 <div class="reply-avatar" style="--avatar-color: ${avatarColor}">
                     <div class="avatar-circle">
                         <span class="avatar-initial">${nameInitial}</span>
                     </div>
                 </div>
             `;
-            
-            // Build admin badge if applicable
-            const adminBadge = isAdmin ? '<span class="admin-badge"><i class="fas fa-shield-alt"></i> مسؤول</span>' : '';
-            
+
             // إنشاء wrapper لمحتوى الرد الرئيسي
             const replyMainContent = document.createElement('div');
             replyMainContent.className = 'reply-main-wrapper';
@@ -1421,7 +1644,7 @@ async function setupCommentsSystem() {
                 ${avatarHTML}
                 <div class="reply-content">
                     <div class="reply-header">
-                        <h5 class="reply-author ${isAdmin ? 'is-admin' : ''}">${adminBadge}${escapeHtml(reply.name)}</h5>
+                        <h5 class="reply-author">${escapeHtml(reply.name)}</h5>
                         <span class="reply-time">${timeAgo}</span>
                     </div>
                     <p class="reply-text">${escapeHtml(reply.reply).replace(/\n/g, '<br>')}</p>
@@ -1433,19 +1656,19 @@ async function setupCommentsSystem() {
                     </div>
                 </div>
             `;
-            
+
             replyDiv.appendChild(replyMainContent);
-            
+
             // Add nested replies container
             const nestedRepliesContainer = document.createElement('div');
             nestedRepliesContainer.className = 'nested-replies-container';
             nestedRepliesContainer.setAttribute('data-reply-id', reply.id);
             replyDiv.appendChild(nestedRepliesContainer);
-            
+
             // Add click event for nested reply button
             const nestedReplyBtn = replyDiv.querySelector('.nested-reply-btn');
             if (nestedReplyBtn) {
-                nestedReplyBtn.addEventListener('click', function(e) {
+                nestedReplyBtn.addEventListener('click', function (e) {
                     e.preventDefault();
                     e.stopPropagation();
                     const replyId = this.getAttribute('data-reply-id');
@@ -1454,24 +1677,24 @@ async function setupCommentsSystem() {
                     toggleNestedReplyForm(replyId, parentCommentId, replyDiv);
                 });
             }
-            
+
             // Load nested replies if any
             loadNestedReplies(reply.id, nestedRepliesContainer);
-            
+
             return replyDiv;
         }
-        
+
         // Toggle nested reply form (now opens modal)
         function toggleNestedReplyForm(replyId, parentCommentId, replyDiv) {
             console.log('Opening reply modal for reply:', replyId);
-            
+
             // Get reply author name from dataset to avoid badge text
             const authorName = replyDiv?.dataset?.authorName || 'الرد';
-            
+
             // Open reply modal
             openReplyModal(replyId, authorName, 'reply', parentCommentId);
         }
-        
+
         // Create nested reply form
         function createNestedReplyForm(parentReplyId, parentCommentId) {
             const formDiv = document.createElement('div');
@@ -1504,32 +1727,32 @@ async function setupCommentsSystem() {
                     </div>
                 </form>
             `;
-            
+
             // Add event listeners
             const closeBtn = formDiv.querySelector('.close-reply-form');
             const cancelBtn = formDiv.querySelector('.cancel-reply');
             const form = formDiv.querySelector('.reply-form-content');
-            
+
             closeBtn.addEventListener('click', () => formDiv.remove());
             cancelBtn.addEventListener('click', () => formDiv.remove());
-            
+
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 await handleNestedReplySubmit(e, parentReplyId, parentCommentId, formDiv);
             });
-            
+
             return formDiv;
         }
-        
+
         // Handle nested reply submission
         async function handleNestedReplySubmit(e, parentReplyId, parentCommentId, formDiv) {
             const submitBtn = formDiv.querySelector('.reply-submit');
             const originalText = submitBtn.innerHTML;
-            
+
             try {
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
-                
+
                 const formData = new FormData(e.target);
                 const replyData = {
                     name: formData.get('name').trim(),
@@ -1540,34 +1763,34 @@ async function setupCommentsSystem() {
                     parentReplyId: parentReplyId, // الرد الذي يتم الرد عليه
                     approved: true
                 };
-                
+
                 // Validation
                 if (!replyData.name || !replyData.reply) {
                     throw new Error('الرجاء ملء جميع الحقول المطلوبة');
                 }
-                
+
                 if (replyData.reply.length < 3) {
                     throw new Error('الرد قصير جداً');
                 }
-                
+
                 if (replyData.reply.length > 500) {
                     throw new Error('الرد طويل جداً (الحد الأقصى 500 حرف)');
                 }
-                
+
                 // Save reply to Firebase
                 await addDoc(collection(db, 'replies'), replyData);
-                
+
                 // Remove form
                 formDiv.remove();
                 showNotification('تم إرسال الرد بنجاح!');
-                
+
                 // Reload nested replies
                 console.log('Reloading nested replies for:', parentReplyId);
                 const nestedContainer = document.querySelector(`[data-reply-id="${parentReplyId}"].nested-replies-container`);
                 if (nestedContainer) {
                     loadNestedReplies(parentReplyId, nestedContainer);
                 }
-                
+
             } catch (error) {
                 console.error('Error adding nested reply:', error);
                 showNotification('حدث خطأ أثناء إرسال الرد: ' + error.message);
@@ -1576,7 +1799,7 @@ async function setupCommentsSystem() {
                 submitBtn.innerHTML = originalText;
             }
         }
-        
+
         // Load nested replies
         async function loadNestedReplies(parentReplyId, container) {
             try {
@@ -1584,23 +1807,23 @@ async function setupCommentsSystem() {
                     collection(db, 'replies'),
                     where('parentReplyId', '==', parentReplyId)
                 );
-                
+
                 const snapshot = await getDocs(nestedRepliesQuery);
                 let nestedReplies = snapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data()
                 }));
-                
+
                 // Sort by timestamp
                 nestedReplies.sort((a, b) => {
                     const timeA = a.timestamp ? a.timestamp.seconds : 0;
                     const timeB = b.timestamp ? b.timestamp.seconds : 0;
                     return timeA - timeB;
                 });
-                
+
                 // Clear container and display nested replies
                 container.innerHTML = '';
-                
+
                 // حساب العمق من خلال عد الـ nested-reply في العنصر الأب
                 const parentElement = container.closest('.reply-item');
                 let currentDepth = 0;
@@ -1609,20 +1832,20 @@ async function setupCommentsSystem() {
                     currentDepth++;
                     checkElement = checkElement.parentElement?.closest('.reply-item');
                 }
-                
+
                 nestedReplies.forEach((nestedReply, index) => {
                     const nestedReplyElement = createReplyElement(nestedReply, index, currentDepth + 1);
                     nestedReplyElement.classList.add('nested-reply');
                     container.appendChild(nestedReplyElement);
                 });
-                
+
                 console.log(`Loaded ${nestedReplies.length} nested replies for ${parentReplyId}`);
-                
+
             } catch (error) {
                 console.error('Error loading nested replies:', error);
             }
         }
-        
+
         // Get or create user ID for tracking reactions
         function getUserId() {
             let userId = localStorage.getItem('portfolio_user_id');
@@ -1632,25 +1855,25 @@ async function setupCommentsSystem() {
             }
             return userId;
         }
-        
+
         // Handle reaction click
         async function handleReaction(commentId, reactionType, buttonElement) {
             try {
                 const userId = getUserId();
                 const commentRef = doc(db, 'comments', commentId);
                 const commentSnap = await getDoc(commentRef);
-                
+
                 if (!commentSnap.exists()) {
                     throw new Error('التعليق غير موجود');
                 }
-                
+
                 const commentData = commentSnap.data();
                 const reactedUsers = commentData.reactedUsers || { like: [], 'thumbs-up': [] };
                 const reactions = commentData.reactions || { like: 0, 'thumbs-up': 0 };
-                
+
                 const hasReacted = reactedUsers[reactionType]?.includes(userId) || false;
                 const countSpan = buttonElement.querySelector('span');
-                
+
                 if (hasReacted) {
                     // Remove reaction
                     reactedUsers[reactionType] = reactedUsers[reactionType].filter(id => id !== userId);
@@ -1665,37 +1888,37 @@ async function setupCommentsSystem() {
                     reactions[reactionType] = reactions[reactionType] + 1;
                     buttonElement.classList.add('active');
                 }
-                
+
                 // Update Firebase
                 await updateDoc(commentRef, {
                     reactions: reactions,
                     reactedUsers: reactedUsers
                 });
-                
+
                 // Update UI immediately
                 countSpan.textContent = reactions[reactionType];
-                
+
                 // Show success message
-                const message = !hasReacted ? 
+                const message = !hasReacted ?
                     (reactionType === 'like' ? 'تم إضافة الإعجاب! ❤️' : 'تم إضافة التقييم! 👍') :
                     (reactionType === 'like' ? 'تم إزالة الإعجاب' : 'تم إزالة التقييم');
                 showNotification(message);
-                
+
             } catch (error) {
                 console.error('Error updating reaction:', error);
                 showNotification('حدث خطأ أثناء تحديث التفاعل');
             }
         }
-        
+
         // Create floating reaction effect
         function createFloatingReaction(buttonElement, reactionType, isAdding) {
             const rect = buttonElement.getBoundingClientRect();
             const floatingElement = document.createElement('div');
-            
+
             // Set emoji based on reaction type
             const emoji = reactionType === 'like' ? '❤️' : '👍';
             const action = isAdding ? '+1' : '-1';
-            
+
             floatingElement.innerHTML = `<span style="margin-right: 5px;">${emoji}</span>${action}`;
             floatingElement.style.cssText = `
                 position: fixed;
@@ -1710,15 +1933,15 @@ async function setupCommentsSystem() {
                 transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
                 opacity: 1;
             `;
-            
+
             document.body.appendChild(floatingElement);
-            
+
             // Animate upward and fade out
             requestAnimationFrame(() => {
                 floatingElement.style.transform = 'translateX(-50%) translateY(-50px) scale(1.2)';
                 floatingElement.style.opacity = '0';
             });
-            
+
             // Remove element after animation
             setTimeout(() => {
                 if (floatingElement.parentNode) {
@@ -1726,7 +1949,7 @@ async function setupCommentsSystem() {
                 }
             }, 800);
         }
-        
+
         // Generate avatar color based on name
         function generateAvatarColor(name) {
             const colors = [
@@ -1739,23 +1962,23 @@ async function setupCommentsSystem() {
             }
             return colors[Math.abs(hash) % colors.length];
         }
-        
+
         // Submit comment
         commentForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const submitBtn = commentForm.querySelector('.comment-submit');
             const originalText = submitBtn.innerHTML;
-            
+
             try {
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
-                
+
                 const formData = new FormData(commentForm);
-                
+
                 // Generate a simple user ID for unauthenticated users
                 const userId = 'user-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-                
+
                 const commentData = {
                     name: formData.get('name').trim(),
                     email: formData.get('email').trim(),
@@ -1772,26 +1995,26 @@ async function setupCommentsSystem() {
                         'thumbs-up': []
                     }
                 };
-                
+
                 // Validation
                 if (!commentData.name || !commentData.text) {
                     throw new Error('الرجاء ملء جميع الحقول المطلوبة');
                 }
-                
+
                 if (commentData.text.length < 3) {
                     throw new Error('التعليق قصير جداً');
                 }
-                
+
                 if (commentData.text.length > 1000) {
                     throw new Error('التعليق طويل جداً (الحد الأقصى 1000 حرف)');
                 }
-                
+
                 await addDoc(commentsCollection, commentData);
-                
+
                 // Reset form
                 commentForm.reset();
                 showNotification('تم إرسال التعليق بنجاح!');
-                
+
             } catch (error) {
                 console.error('Error adding comment:', error);
                 showNotification('حدث خطأ أثناء إرسال التعليق: ' + error.message);
@@ -1800,7 +2023,7 @@ async function setupCommentsSystem() {
                 submitBtn.innerHTML = originalText;
             }
         });
-        
+
         // Sort comments
         commentsSort.addEventListener('change', (e) => {
             currentSort = e.target.value;
@@ -1808,50 +2031,50 @@ async function setupCommentsSystem() {
             removeShowMoreButton();
             loadComments();
         });
-        
+
         // Character counter for comment textarea
         const commentTextarea = document.getElementById('comment-text');
         const charCounter = document.createElement('div');
         charCounter.className = 'char-counter';
         charCounter.textContent = '0/1000';
         commentTextarea.parentNode.appendChild(charCounter);
-        
+
         commentTextarea.addEventListener('input', (e) => {
             const length = e.target.value.length;
             charCounter.textContent = `${length}/1000`;
             charCounter.style.color = length > 1000 ? '#e74c3c' : '#666';
         });
-        
+
         // Make loadRepliesForComment available globally for retry button
         window.loadRepliesForComment = loadRepliesForComment;
-        
+
         // Add function to force show replies
-        window.forceShowReplies = function(commentId) {
+        window.forceShowReplies = function (commentId) {
             const repliesContainer = document.querySelector(`[data-comment-id="${commentId}"].replies-container`);
             if (repliesContainer) {
                 const repliesList = repliesContainer.querySelector('.replies-list');
                 const toggleIcon = repliesContainer.querySelector('.replies-toggle-icon');
-                
+
                 if (repliesList) {
                     repliesList.style.display = 'block';
                     repliesList.style.opacity = '1';
                     repliesList.style.transform = 'translateY(0)';
                     repliesList.setAttribute('data-visible', 'true');
-                    
+
                     if (toggleIcon) {
                         toggleIcon.className = 'fas fa-chevron-up replies-toggle-icon';
                     }
-                    
+
                     console.log('Forced replies to show for comment:', commentId);
                 }
             }
         };
-        
+
         // ===== REPLY MODAL FUNCTIONS =====
         let currentReplyTarget = null;
 
         // Open reply modal
-        window.openReplyModal = function(targetId, targetName, targetType, parentCommentId = null) {
+        window.openReplyModal = function (targetId, targetName, targetType, parentCommentId = null) {
             const replyModal = document.getElementById('reply-modal');
             const replyToName = document.getElementById('reply-to-name');
             const modalForm = document.getElementById('reply-modal-form');
@@ -2002,16 +2225,16 @@ async function setupCommentsSystem() {
 
         const replyModal = document.getElementById('reply-modal');
         if (replyModal) {
-            replyModal.addEventListener('click', function(e) {
+            replyModal.addEventListener('click', function (e) {
                 if (e.target === replyModal) {
                     closeReplyModal(true);
                 }
             });
         }
-        
+
         // Initialize
         loadComments();
-        
+
     } catch (error) {
         console.error('Error setting up comments system:', error);
         commentsLoading.innerHTML = '<p style="color: #e74c3c;">حدث خطأ في تحميل نظام التعليقات</p>';
@@ -2022,7 +2245,7 @@ async function setupCommentsSystem() {
 function getTimeAgo(date) {
     const now = new Date();
     const diffInSeconds = Math.floor((now - date) / 1000);
-    
+
     if (diffInSeconds < 60) {
         return 'منذ لحظات';
     } else if (diffInSeconds < 3600) {
@@ -2046,47 +2269,7 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Utility function to check if user is admin
-function isAdminUser(name) {
-    if (!name || typeof name !== 'string') {
-        return false;
-    }
-    // List of admin names (can be expanded)
-    const adminNames = [
-        'يوسف جمعة',
-        'يوسف أحمد محمد',
-        'Yousef Gomaa',
-        'Youssef Gomaa'
-    ];
-    
-    // Normalize the name by trimming and converting to lowercase for comparison
-    const normalizedName = name.trim();
-    
-    return adminNames.some(adminName => 
-        normalizedName === adminName || 
-        normalizedName.includes('يوسف') && normalizedName.includes('جمعة')
-    );
-}
 
-// ===== ADMIN PANEL SYSTEM =====
-let yKeyPressCount = 0;
-let yKeyPressTimer = null;
-const Y_KEY_REQUIRED_PRESSES = 5;
-const Y_KEY_TIMEOUT = 2000; // 2 seconds timeout
-
-// Track clicks on the name in header
-let nameClickCount = 0;
-let nameClickTimer = null;
-const NAME_CLICK_REQUIRED = 5;
-const NAME_CLICK_TIMEOUT = 3000; // 3 seconds timeout for name clicks
-
-// Visitor tracking
-let visitorTrackingInitialized = false;
-let visitorId = localStorage.getItem('visitorId');
-if (!visitorId) {
-    visitorId = 'visitor-' + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem('visitorId', visitorId);
-}
 
 function initializeVisitorTracking() {
     if (visitorTrackingInitialized) {
@@ -2311,7 +2494,7 @@ function collectVisitorInfo() {
         // Check if WebRTC is leaking local IP
         if (window.RTCPeerConnection) {
             try {
-                const pc = new RTCPeerConnection({iceServers: []});
+                const pc = new RTCPeerConnection({ iceServers: [] });
                 pc.createDataChannel('');
                 pc.createOffer().then(offer => {
                     const lines = offer.sdp.split('\n');
@@ -2775,7 +2958,7 @@ function loadAdminVisitorsFromLocal(container) {
     renderAdminVisitorsList(container, visitorsForDisplay);
 }
 
-window.loadAdminVisitors = async function() {
+window.loadAdminVisitors = async function () {
     const visitorsList = document.getElementById('admin-visitors-list');
     if (!visitorsList) return;
 
@@ -2851,24 +3034,24 @@ window.loadAdminVisitors = async function() {
 };
 
 // Track clicks on the name in header
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const nameElement = document.querySelector('.nav-logo span');
     if (nameElement) {
         nameElement.style.cursor = 'pointer';
         nameElement.title = 'اضغط 5 مرات لفتح لوحة التحكم';
-        
-        nameElement.addEventListener('click', function() {
+
+        nameElement.addEventListener('click', function () {
             // Clear previous timer if exists
             if (nameClickTimer) {
                 clearTimeout(nameClickTimer);
             }
-            
+
             // Increment click count
             nameClickCount++;
-            
+
             // Show progress
             showNameClickProgress(nameClickCount);
-            
+
             // If reached required clicks, open admin panel
             if (nameClickCount >= NAME_CLICK_REQUIRED) {
                 openAdminPanel();
@@ -2876,7 +3059,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 removeNameClickProgress();
                 return;
             }
-            
+
             // Reset counter after timeout
             nameClickTimer = setTimeout(() => {
                 nameClickCount = 0;
@@ -2889,7 +3072,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Show name click progress
 function showNameClickProgress(count) {
     removeNameClickProgress(); // Remove any existing progress indicator
-    
+
     const progress = document.createElement('div');
     progress.id = 'name-click-progress';
     progress.style.position = 'fixed';
@@ -2905,9 +3088,9 @@ function showNameClickProgress(count) {
     progress.style.fontSize = '14px';
     progress.style.transition = 'opacity 0.5s';
     progress.textContent = `تم النقر ${count} من ${NAME_CLICK_REQUIRED} مرات`;
-    
+
     document.body.appendChild(progress);
-    
+
     // Auto-hide after 1.5 seconds
     setTimeout(() => {
         progress.style.opacity = '0';
@@ -2928,26 +3111,26 @@ function removeNameClickProgress() {
 }
 
 // Track Y key presses
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', function (e) {
     // Check for 'y' or 'Y' key (keyCode 89 or key 'y')
     if (e.key.toLowerCase() === 'y') {
         yKeyPressCount++;
-        
+
         // Clear existing timer
         if (yKeyPressTimer) {
             clearTimeout(yKeyPressTimer);
         }
-        
+
         // Reset counter after timeout
         yKeyPressTimer = setTimeout(() => {
             yKeyPressCount = 0;
         }, Y_KEY_TIMEOUT);
-        
+
         // Show visual feedback
         if (yKeyPressCount > 0) {
             showYKeyProgress(yKeyPressCount);
         }
-        
+
         // Open admin panel if 5 presses reached
         if (yKeyPressCount >= Y_KEY_REQUIRED_PRESSES) {
             yKeyPressCount = 0;
@@ -2961,7 +3144,7 @@ document.addEventListener('keydown', function(e) {
 // Show Y key press progress
 function showYKeyProgress(count) {
     let progressIndicator = document.getElementById('y-key-progress');
-    
+
     if (!progressIndicator) {
         progressIndicator = document.createElement('div');
         progressIndicator.id = 'y-key-progress';
@@ -2983,14 +3166,14 @@ function showYKeyProgress(count) {
         `;
         document.body.appendChild(progressIndicator);
     }
-    
+
     const remaining = Y_KEY_REQUIRED_PRESSES - count;
     progressIndicator.innerHTML = `
         <i class="fas fa-keyboard"></i>
         ${remaining === 0 ? 'فتح لوحة الإدارة...' : `اضغط Y ${remaining} مرات أخرى`}
         <span style="margin-right: 0.5rem;">${'🔑'.repeat(count)}</span>
     `;
-    
+
     // Scale animation
     progressIndicator.style.transform = 'translateX(-50%) scale(1.1)';
     setTimeout(() => {
@@ -3018,10 +3201,10 @@ function openAdminPanel() {
         adminModal.style.alignItems = 'center';
         adminModal.style.justifyContent = 'center';
         document.body.style.overflow = 'hidden';
-        
+
         // Load admin data
         initializeAdminPanel();
-        
+
         showNotification('مرحباً بك في لوحة الإدارة! 🛡️');
     }
 }
@@ -3042,47 +3225,47 @@ async function initializeAdminPanel() {
     if (closeBtn) {
         closeBtn.onclick = closeAdminPanel;
     }
-    
+
     // Setup tab switching
     const tabBtns = document.querySelectorAll('.admin-tab-btn');
     tabBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             const tabName = this.getAttribute('data-tab');
             switchAdminTab(tabName);
-            
+
             // Load visitors when the tab is clicked
             if (tabName === 'visitors') {
                 loadAdminVisitors();
             }
         });
     });
-    
+
     // Setup search
     const commentsSearch = document.getElementById('admin-comments-search');
     const repliesSearch = document.getElementById('admin-replies-search');
     const visitorsSearch = document.getElementById('admin-visitors-search');
-    
+
     if (commentsSearch) {
         commentsSearch.addEventListener('input', (e) => {
             filterAdminItems('comments', e.target.value);
         });
     }
-    
+
     if (repliesSearch) {
         repliesSearch.addEventListener('input', (e) => {
             filterAdminItems('replies', e.target.value);
         });
     }
-    
+
     if (visitorsSearch) {
         visitorsSearch.addEventListener('input', (e) => {
             filterAdminItems('visitors', e.target.value);
         });
     }
-    
+
     // Update visitor count
     updateVisitorCount();
-    
+
     // Load data
     await loadAdminComments();
     await loadAdminReplies();
@@ -3097,12 +3280,12 @@ function switchAdminTab(tabName) {
             btn.classList.add('active');
         }
     });
-    
+
     // Update tab content
     document.querySelectorAll('.admin-tab-content').forEach(content => {
         content.classList.remove('active');
     });
-    
+
     const targetTab = document.getElementById(`admin-${tabName}-tab`);
     if (targetTab) {
         targetTab.classList.add('active');
@@ -3115,21 +3298,21 @@ async function loadAdminComments() {
         console.error('Firebase not initialized');
         return;
     }
-    
+
     try {
         const { collection, getDocs, query, orderBy } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
         const db = window.firebaseDb;
-        
+
         const commentsQuery = query(collection(db, 'comments'), orderBy('timestamp', 'desc'));
         const snapshot = await getDocs(commentsQuery);
-        
+
         const commentsList = document.getElementById('admin-comments-list');
         const commentsCount = document.getElementById('admin-comments-count');
-        
+
         if (commentsCount) {
             commentsCount.textContent = snapshot.docs.length;
         }
-        
+
         if (snapshot.docs.length === 0) {
             commentsList.innerHTML = `
                 <div class="admin-no-items">
@@ -3139,14 +3322,14 @@ async function loadAdminComments() {
             `;
             return;
         }
-        
+
         commentsList.innerHTML = '';
         snapshot.docs.forEach(doc => {
             const comment = doc.data();
             const commentElement = createAdminCommentElement(doc.id, comment);
             commentsList.appendChild(commentElement);
         });
-        
+
     } catch (error) {
         console.error('Error loading admin comments:', error);
         document.getElementById('admin-comments-list').innerHTML = `
@@ -3164,21 +3347,21 @@ async function loadAdminReplies() {
         console.error('Firebase not initialized');
         return;
     }
-    
+
     try {
         const { collection, getDocs, query, orderBy } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
         const db = window.firebaseDb;
-        
+
         const repliesQuery = query(collection(db, 'replies'), orderBy('timestamp', 'desc'));
         const snapshot = await getDocs(repliesQuery);
-        
+
         const repliesList = document.getElementById('admin-replies-list');
         const repliesCount = document.getElementById('admin-replies-count');
-        
+
         if (repliesCount) {
             repliesCount.textContent = snapshot.docs.length;
         }
-        
+
         if (snapshot.docs.length === 0) {
             repliesList.innerHTML = `
                 <div class="admin-no-items">
@@ -3188,14 +3371,14 @@ async function loadAdminReplies() {
             `;
             return;
         }
-        
+
         repliesList.innerHTML = '';
         snapshot.docs.forEach(doc => {
             const reply = doc.data();
             const replyElement = createAdminReplyElement(doc.id, reply);
             repliesList.appendChild(replyElement);
         });
-        
+
     } catch (error) {
         console.error('Error loading admin replies:', error);
         document.getElementById('admin-replies-list').innerHTML = `
@@ -3214,13 +3397,13 @@ function createAdminCommentElement(id, comment) {
     div.setAttribute('data-id', id);
     div.setAttribute('data-type', 'comment');
     div.setAttribute('data-search-text', `${comment.name} ${comment.email || ''} ${comment.text || comment.comment}`.toLowerCase());
-    
+
     const timestamp = comment.timestamp ? new Date(comment.timestamp.seconds * 1000) : new Date();
     const dateStr = timestamp.toLocaleString('ar-EG');
-    
+
     const likeCount = comment.reactions?.like || 0;
     const thumbsUpCount = comment.reactions?.['thumbs-up'] || 0;
-    
+
     div.innerHTML = `
         <div class="admin-item-header">
             <div class="admin-item-info">
@@ -3251,7 +3434,7 @@ function createAdminCommentElement(id, comment) {
             </div>
         </div>
     `;
-    
+
     return div;
 }
 
@@ -3262,12 +3445,12 @@ function createAdminReplyElement(id, reply) {
     div.setAttribute('data-id', id);
     div.setAttribute('data-type', 'reply');
     div.setAttribute('data-search-text', `${reply.name} ${reply.email || ''} ${reply.reply}`.toLowerCase());
-    
+
     const timestamp = reply.timestamp ? new Date(reply.timestamp.seconds * 1000) : new Date();
     const dateStr = timestamp.toLocaleString('ar-EG');
-    
+
     const replyType = reply.parentReplyId ? 'رد على رد' : 'رد على تعليق';
-    
+
     div.innerHTML = `
         <div class="admin-item-header">
             <div class="admin-item-info">
@@ -3288,23 +3471,23 @@ function createAdminReplyElement(id, reply) {
         </div>
         <div class="admin-item-text">${escapeHtml(reply.reply)}</div>
     `;
-    
+
     return div;
 }
 
 // Edit admin item (global function)
-window.editAdminItem = async function(type, id) {
+window.editAdminItem = async function (type, id) {
     const item = document.querySelector(`.admin-item[data-id="${id}"]`);
     if (!item) return;
-    
+
     // Check if already editing
     if (item.querySelector('.admin-edit-form')) {
         return;
     }
-    
+
     const textDiv = item.querySelector('.admin-item-text');
     const currentText = textDiv.textContent;
-    
+
     // Create edit form
     const editForm = document.createElement('div');
     editForm.className = 'admin-edit-form';
@@ -3321,11 +3504,11 @@ window.editAdminItem = async function(type, id) {
             </button>
         </div>
     `;
-    
+
     // Replace text with form
     textDiv.style.display = 'none';
     textDiv.parentNode.insertBefore(editForm, textDiv.nextSibling);
-    
+
     // Focus on textarea
     const textarea = editForm.querySelector('textarea');
     textarea.focus();
@@ -3333,63 +3516,63 @@ window.editAdminItem = async function(type, id) {
 };
 
 // Cancel edit admin item (global function)
-window.cancelEditAdminItem = function(id) {
+window.cancelEditAdminItem = function (id) {
     const item = document.querySelector(`.admin-item[data-id="${id}"]`);
     if (!item) return;
-    
+
     const editForm = item.querySelector('.admin-edit-form');
     const textDiv = item.querySelector('.admin-item-text');
-    
+
     if (editForm) {
         editForm.remove();
     }
-    
+
     if (textDiv) {
         textDiv.style.display = 'block';
     }
 };
 
 // Save admin item (global function)
-window.saveAdminItem = async function(type, id) {
+window.saveAdminItem = async function (type, id) {
     const item = document.querySelector(`.admin-item[data-id="${id}"]`);
     if (!item) return;
-    
+
     const textarea = item.querySelector('.admin-edit-textarea');
     if (!textarea) return;
-    
+
     const newText = textarea.value.trim();
-    
+
     if (!newText) {
         showNotification('لا يمكن حفظ نص فارغ');
         return;
     }
-    
+
     try {
         const { doc, updateDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
         const db = window.firebaseDb;
-        
+
         const collectionName = type === 'comment' ? 'comments' : 'replies';
         const fieldName = type === 'comment' ? 'comment' : 'reply';
-        
+
         const docRef = doc(db, collectionName, id);
         await updateDoc(docRef, {
             [fieldName]: newText
         });
-        
+
         // Update UI
         const textDiv = item.querySelector('.admin-item-text');
         if (textDiv) {
             textDiv.textContent = newText;
             textDiv.style.display = 'block';
         }
-        
+
         const editForm = item.querySelector('.admin-edit-form');
         if (editForm) {
             editForm.remove();
         }
-        
+
         showNotification('تم التعديل بنجاح! ✅');
-        
+
         // Reload comments system to reflect changes
         if (type === 'comment' && typeof setupCommentsSystem === 'function') {
             setTimeout(() => {
@@ -3397,7 +3580,7 @@ window.saveAdminItem = async function(type, id) {
                 if (commentsLoading) commentsLoading.style.display = 'none';
             }, 500);
         }
-        
+
     } catch (error) {
         console.error('Error updating item:', error);
         showNotification('حدث خطأ أثناء التعديل');
@@ -3405,27 +3588,27 @@ window.saveAdminItem = async function(type, id) {
 };
 
 // Delete admin item (global function)
-window.deleteAdminItem = async function(type, id) {
+window.deleteAdminItem = async function (type, id) {
     // Handle visitor deletion
     if (type === 'visitors') {
         if (confirm('هل أنت متأكد من حذف بيانات هذا الزائر؟')) {
             try {
                 const visitors = JSON.parse(localStorage.getItem('visitors') || '{}');
                 const today = new Date().toISOString().split('T')[0];
-                
+
                 if (visitors[today]) {
                     visitors[today] = visitors[today].filter(visitor => visitor.id !== id);
                     localStorage.setItem('visitors', JSON.stringify(visitors));
-                    
+
                     // Update UI
                     const visitorElement = document.getElementById(`visitor-${id}`);
                     if (visitorElement) {
                         visitorElement.remove();
                     }
-                    
+
                     // Update count
                     updateVisitorCount();
-                    
+
                     showNotification('تم حذف بيانات الزائر بنجاح');
                 }
             } catch (error) {
@@ -3435,21 +3618,21 @@ window.deleteAdminItem = async function(type, id) {
         }
         return;
     }
-    
+
     // Original delete functionality for other types
     if (!confirm('هل أنت متأكد من حذف هذا العنصر؟ لا يمكن التراجع عن هذا الإجراء!')) {
         return;
     }
-    
+
     try {
         const { doc, deleteDoc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
         const db = window.firebaseDb;
-        
+
         const collectionName = type === 'comment' ? 'comments' : 'replies';
         const docRef = doc(db, collectionName, id);
-        
+
         await deleteDoc(docRef);
-        
+
         // Remove from UI
         const item = document.querySelector(`.admin-item[data-id="${id}"]`);
         if (item) {
@@ -3457,28 +3640,28 @@ window.deleteAdminItem = async function(type, id) {
             item.style.transform = 'scale(0.9)';
             setTimeout(() => {
                 item.remove();
-                
+
                 // Update count
                 const countElement = document.getElementById(`admin-${type === 'comment' ? 'comments' : 'replies'}-count`);
                 if (countElement) {
                     const currentCount = parseInt(countElement.textContent) || 0;
                     countElement.textContent = Math.max(0, currentCount - 1);
                 }
-                
+
                 // Check if list is now empty
                 const listElement = document.getElementById(`admin-${type === 'comment' ? 'comments' : 'replies'}-list`);
                 if (listElement && listElement.children.length === 0) {
-                    const emptyMessage = type === 'comment' ? 
+                    const emptyMessage = type === 'comment' ?
                         '<i class="fas fa-comments"></i><p>لا توجد تعليقات بعد</p>' :
                         '<i class="fas fa-reply-all"></i><p>لا توجد ردود بعد</p>';
-                    
+
                     listElement.innerHTML = `<div class="admin-no-items">${emptyMessage}</div>`;
                 }
             }, 300);
         }
-        
+
         showNotification('تم الحذف بنجاح! 🗑️');
-        
+
     } catch (error) {
         console.error('Error deleting item:', error);
         showNotification('حدث خطأ أثناء الحذف');
@@ -3489,15 +3672,127 @@ window.deleteAdminItem = async function(type, id) {
 function filterAdminItems(type, searchText) {
     const searchLower = searchText.toLowerCase();
     const items = document.querySelectorAll(`#admin-${type}-list .admin-item`);
-    
+
     items.forEach(item => {
         const text = item.textContent.toLowerCase();
         item.style.display = text.includes(searchLower) ? 'block' : 'none';
     });
 }
 
+// ===== ADMIN ACCESS LOGIC =====
+let adminClickCount = 0;
+let adminClickTimeout;
+const adminPassword = 'youssef20807y';
+
+function checkAdminAccess() {
+    adminClickCount++;
+
+    // Create or get toast element for feedback
+    let adminToast = document.getElementById('admin-toast');
+    if (!adminToast) {
+        adminToast = document.createElement('div');
+        adminToast.id = 'admin-toast';
+        adminToast.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 5px; display: none; z-index: 10000; font-family: Cairo, sans-serif;';
+        document.body.appendChild(adminToast);
+    }
+
+    if (adminClickCount === 4) {
+        adminToast.textContent = 'نقرة واحدة أخرى للوصول للمسؤول... 🛡️';
+        adminToast.style.display = 'block';
+        setTimeout(() => {
+            adminToast.style.display = 'none';
+        }, 2000);
+    } else if (adminClickCount >= 5) {
+        adminToast.style.display = 'none';
+        const password = prompt('أدخل كلمة المرور لدخول لوحة التحكم:');
+        if (password === adminPassword) {
+            showNotification('تم الوصول بنجاح! 🔓');
+            const adminBtn = document.getElementById('admin-button');
+            if (adminBtn) {
+                adminBtn.style.display = 'flex';
+                adminBtn.classList.add('reveal-animation');
+            }
+            adminClickCount = 0;
+        } else if (password !== null) {
+            showNotification('كلمة المرور غير صحيحة ❌');
+            adminClickCount = 0;
+        }
+    }
+
+    // Reset counter if no clicks for 3 seconds
+    clearTimeout(adminClickTimeout);
+    adminClickTimeout = setTimeout(() => {
+        adminClickCount = 0;
+    }, 3000);
+}
+
+// Add click event listener for admin access
+document.addEventListener('click', (e) => {
+    // Only count clicks on the body or elements that aren't interactive
+    if (e.target.tagName === 'BODY' || e.target.tagName === 'SECTION' || e.target.classList.contains('hero-bg')) {
+        checkAdminAccess();
+    }
+});
+
+// Admin Panel Functions
+function openAdminPanel() {
+    const adminModal = document.getElementById('admin-modal');
+    if (adminModal) {
+        adminModal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+
+        // Load stats if needed
+        updateAdminStats();
+    }
+}
+
+function closeAdminPanel() {
+    const adminModal = document.getElementById('admin-modal');
+    if (adminModal) {
+        adminModal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Restore scrolling
+    }
+}
+
+async function updateAdminStats() {
+    try {
+        // Example: Get visitor count from localStorage or Firebase
+        const visitorCountSpan = document.getElementById('admin-visitors-count');
+        if (visitorCountSpan) {
+            const visitors = JSON.parse(localStorage.getItem('visitors') || '{}');
+            const totalVisitors = Object.values(visitors).reduce((acc, curr) => acc + (Array.isArray(curr) ? curr.length : 0), 0);
+            visitorCountSpan.textContent = totalVisitors;
+        }
+    } catch (error) {
+        console.error('Error updating admin stats:', error);
+    }
+}
+
+// Event Listeners for Admin Button and Modal
+document.addEventListener('DOMContentLoaded', () => {
+    const adminBtn = document.getElementById('admin-button');
+    if (adminBtn) {
+        adminBtn.addEventListener('click', openAdminPanel);
+    }
+
+    const closeBtn = document.querySelector('.admin-modal-close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeAdminPanel);
+    }
+
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            const adminBtn = document.getElementById('admin-button');
+            if (adminBtn) adminBtn.style.display = 'none';
+            closeAdminPanel();
+            showNotification('تم تسجيل الخروج بنجاح 👋');
+        });
+    }
+});
+
 // Close admin panel when clicking outside
-document.addEventListener('click', function(e) {
+document.addEventListener('click', function (e) {
     const adminModal = document.getElementById('admin-modal');
     if (adminModal && e.target === adminModal) {
         closeAdminPanel();
@@ -3505,7 +3800,7 @@ document.addEventListener('click', function(e) {
 });
 
 // Close modals with Escape key
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
         // Close reply modal if open
         const replyModal = document.getElementById('reply-modal');
@@ -3514,7 +3809,7 @@ document.addEventListener('keydown', function(e) {
             if (closeBtn) closeBtn.click();
             return;
         }
-        
+
         // Close admin panel if open
         const adminModal = document.getElementById('admin-modal');
         if (adminModal && adminModal.style.display !== 'none') {

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,30 +12,42 @@
     <meta property="og:description" content="موقع شخصي لعرض أعمالي وخبراتي في تطوير المواقع الإلكترونية">
     <meta property="og:type" content="website">
     <title>يوسف أحمد محمد - مطور ويب</title>
-    <meta name="description" content="موقع شخصي ليوسف أحمد محمد - مطور ومصمم جرافيك متخصص في البرمجة والتصميم والذكاء الاصطناعي">
+    <meta name="description"
+        content="موقع شخصي ليوسف أحمد محمد - مطور ومصمم جرافيك متخصص في البرمجة والتصميم والذكاء الاصطناعي">
     <meta name="robots" content="index, follow">
-    <link rel="sitemap" type="application/xml" title="Sitemap" href="https://youssef20807y.github.io/Portoflio/sitemap.xml">
+    <link rel="sitemap" type="application/xml" title="Sitemap"
+        href="https://youssef20807y.github.io/Portoflio/sitemap.xml">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-    
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- AOS Animation Library -->
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="./style.css">
-    
+
     <!-- Favicon -->
     <link rel="icon" type="image/jpg" href="images/profile.jpg">
 </head>
+
 <body>
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+    </div>
+
+    <!-- Custom Premium Cursor -->
+    <div class="cursor-dot" id="cursor-dot"></div>
+    <div class="cursor-outline" id="cursor-outline"></div>
+
     <!-- Navigation -->
-    <nav class="navbar" id="navbar">
+    <nav class="navbar glass" id="navbar">
         <div class="nav-container">
             <div class="nav-logo">
                 <span>يوسف أحمد</span>
@@ -61,14 +74,15 @@
                 <span class="bar"></span>
                 <span class="bar"></span>
             </div>
-            <div class="theme-toggle" id="theme-toggle">
+                        <div class="theme-toggle" id="theme-toggle">
                 <i class="fas fa-moon"></i>
             </div>
-        </div>
+                    </div>
     </nav>
 
     <!-- Hero Section -->
     <section id="home" class="hero">
+        <canvas id="hero-canvas"></canvas>
         <div class="hero-container">
             <div class="hero-content" data-aos="fade-up" data-aos-duration="1000">
                 <div class="hero-image">
@@ -95,7 +109,7 @@
                     </a>
                 </div>
             </div>
-            
+
         </div>
         <div class="hero-bg">
             <div class="bg-shape shape-1"></div>
@@ -165,34 +179,38 @@
                         <div class="timeline-content">
                             <div class="timeline-date">2023 - 2024</div>
                             <h4>مصمم جرافيك ومدير محتوى - Printly</h4>
-                            <p>تصميم محتوى إبداعي لمنصات التواصل الاجتماعي والمواد المطبوعة، وتطوير هويات بصرية شاملة للعلامات التجارية.</p>
+                            <p>تصميم محتوى إبداعي لمنصات التواصل الاجتماعي والمواد المطبوعة، وتطوير هويات بصرية شاملة
+                                للعلامات التجارية.</p>
                         </div>
                     </div>
-                    
+
                     <div class="timeline-item" data-aos="fade-left" data-aos-delay="400">
                         <div class="timeline-dot"></div>
                         <div class="timeline-content">
                             <div class="timeline-date">2024</div>
                             <h4>مصمم جرافيك - محمود لبن للأثاث</h4>
-                            <p>إنشاء مواد إعلانية مؤثرة وملصقات لترويج المنتجات بفعالية، وإدارة حملات التسويق الرقمي.</p>
+                            <p>إنشاء مواد إعلانية مؤثرة وملصقات لترويج المنتجات بفعالية، وإدارة حملات التسويق الرقمي.
+                            </p>
                         </div>
                     </div>
-                    
+
                     <div class="timeline-item" data-aos="fade-right" data-aos-delay="500">
                         <div class="timeline-dot"></div>
                         <div class="timeline-content">
                             <div class="timeline-date">2022 - 2024</div>
                             <h4>مصمم جرافيك - تصاميم ديزاينز</h4>
-                            <p>إنتاج رسوميات جذابة لوسائل التواصل الاجتماعي وتحسين جودة المحتوى البصري لدعم استراتيجيات التسويق.</p>
+                            <p>إنتاج رسوميات جذابة لوسائل التواصل الاجتماعي وتحسين جودة المحتوى البصري لدعم استراتيجيات
+                                التسويق.</p>
                         </div>
                     </div>
-                    
+
                     <div class="timeline-item" data-aos="fade-left" data-aos-delay="600">
                         <div class="timeline-dot"></div>
                         <div class="timeline-content">
                             <div class="timeline-date">2022 - 2024</div>
                             <h4>مصمم جرافيك مستقل</h4>
-                            <p>إدارة وتصميم المحتوى البصري لوسائل التواصل الاجتماعي لعملاء متنوعين، وزيادة التفاعل من خلال تقنيات التصميم الفعالة.</p>
+                            <p>إدارة وتصميم المحتوى البصري لوسائل التواصل الاجتماعي لعملاء متنوعين، وزيادة التفاعل من
+                                خلال تقنيات التصميم الفعالة.</p>
                         </div>
                     </div>
                 </div>
@@ -206,12 +224,12 @@
                         <h4><i class="fas fa-code"></i> لغات البرمجة</h4>
                         <div class="skills-list" id="skills-programming"></div>
                     </div>
-                    
+
                     <div class="skill-category">
                         <h4><i class="fas fa-paint-brush"></i> أدوات التصميم</h4>
                         <div class="skills-list" id="skills-design"></div>
                     </div>
-                    
+
                     <div class="skill-category">
                         <h4><i class="fas fa-cogs"></i> مهارات أخرى</h4>
                         <div class="skills-list" id="skills-other"></div>
@@ -268,414 +286,321 @@
                 <!-- Portfolio items will be dynamically generated -->
             </div>
         </div>
-    </section>
 
-    <!-- Comments Section -->
-    <section id="comments" class="comments-section">
-        <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <h2 class="section-title">
-                    <span class="title-icon">💭</span>
-                    التعليقات
-                    <span class="title-decoration"></span>
-                </h2>
-                <p class="section-subtitle">شاركنا رأيك أو اترك تعليقاً - كل كلمة تهمنا</p>
-                <div class="section-stats">
-                    <div class="stat-item">
-                        <span class="stat-number" id="total-comments">0</span>
-                        <span class="stat-label">تعليق</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number" data-stat="likes">0</span>
-                        <span class="stat-label">❤️ إعجاب</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number" data-stat="thumbs">0</span>
-                        <span class="stat-label">👍 تقييم</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Comment Form -->
-            <div class="comment-form-container" data-aos="fade-up" data-aos-delay="100">
-                <form class="comment-form" id="comment-form">
-                    <div class="form-group">
-                        <label for="comment-name">الاسم</label>
-                        <input type="text" id="comment-name" name="name" required placeholder="اكتب اسمك">
-                    </div>
-                    <div class="form-group">
-                        <label for="comment-email">البريد الإلكتروني (اختياري)</label>
-                        <input type="email" id="comment-email" name="email" placeholder="example@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label for="comment-text">التعليق</label>
-                        <textarea id="comment-text" name="comment" required rows="4" placeholder="اكتب تعليقك هنا..."></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary comment-submit">
-                        <i class="fas fa-paper-plane"></i>
-                        إرسال التعليق
-                    </button>
-                </form>
-            </div>
-
-            <!-- Comments List -->
-            <div class="comments-container" data-aos="fade-up" data-aos-delay="200">
-                <div class="comments-header">
-                    <h3>التعليقات (<span id="comments-count">0</span>)</h3>
-                    <div class="comments-sort">
-                        <select id="comments-sort">
-                            <option value="newest">الأحدث أولاً</option>
-                            <option value="oldest">الأقدم أولاً</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="comments-list" id="comments-list">
-                    <div class="comments-loading" id="comments-loading">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <span>جاري تحميل التعليقات...</span>
-                    </div>
-                    <div class="no-comments" id="no-comments" style="display: none;">
-                        <i class="fas fa-comments"></i>
-                        <p>لا توجد تعليقات بعد. كن أول من يعلق!</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact Section -->
-    <section id="contact" class="contact-section">
-        <div class="container">
-            <div class="section-header" data-aos="fade-up">
-                <h2 class="section-title">تواصل معي</h2>
-                <p class="section-subtitle">دعنا نتعاون لتحقيق أفكارك</p>
-            </div>
-
-            <div class="contact-content">
-                <div class="contact-info" data-aos="fade-right" data-aos-delay="100">
-                    <div class="contact-item">
-                        <div class="contact-icon">
-                            <i class="fas fa-envelope"></i>
+        <!-- Comments Section -->
+        <section id="comments" class="comments-section">
+            <div class="container">
+                <div class="section-header" data-aos="fade-up">
+                    <h2 class="section-title">
+                        <span class="title-icon">💭</span>
+                        التعليقات
+                        <span class="title-decoration"></span>
+                    </h2>
+                    <p class="section-subtitle">شاركنا رأيك أو اترك تعليقاً - كل كلمة تهمنا</p>
+                    <div class="section-stats">
+                        <div class="stat-item">
+                            <span class="stat-number" id="total-comments">0</span>
+                            <span class="stat-label">تعليق</span>
                         </div>
-                        <div class="contact-details">
-                            <h4>البريد الإلكتروني</h4>
-                            <p>yjmt46999@gmail.com</p>
+                        <div class="stat-item">
+                            <span class="stat-number" data-stat="likes">0</span>
+                            <span class="stat-label">❤️ إعجاب</span>
                         </div>
-                    </div>
-                    
-                    <div class="contact-item">
-                        <div class="contact-icon">
-                            <i class="fas fa-phone"></i>
-                        </div>
-                        <div class="contact-details">
-                            <h4>الهاتف</h4>
-                            <p>+201024485693</p>
-                        </div>
-                    </div>
-                    
-                    <div class="contact-item">
-                        <div class="contact-icon">
-                            <i class="fas fa-map-marker-alt"></i>
-                        </div>
-                        <div class="contact-details">
-                            <h4>الموقع</h4>
-                            <p>دمياط شطا 2  مصر</p>
+                        <div class="stat-item">
+                            <span class="stat-number" data-stat="thumbs">0</span>
+                            <span class="stat-label">👍 تقييم</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="social-links" data-aos="fade-left" data-aos-delay="200">
-                    <h3>تابعني على</h3>
-                    <div class="social-grid">
-                        <a href="https://web.facebook.com/ywsf.ahmd.jm.t.28459" class="social-link" target="_blank" rel="noopener">
-                            <i class="fab fa-facebook"></i>
-                            <span>Facebook</span>
-                        </a>
-                        <a href="https://github.com/youssef20807y" class="social-link" target="_blank" rel="noopener">
-                            <i class="fab fa-github"></i>
-                            <span>GitHub</span>
-                        </a>
-                        <a href="https://www.behance.net/46abdaaa" class="social-link" target="_blank" rel="noopener">
-                            <i class="fab fa-behance"></i>
-                            <span>Behance</span>
-                        </a>
-                        <a href="https://wa.me/201024485693" class="social-link" target="_blank" rel="noopener">
-                            <i class="fab fa-whatsapp"></i>
-                            <span>WhatsApp</span>
-                        </a>
-                    </div>
-                    
-                    <div class="cv-download">
-                        <a href="assets/cv.pdf" class="btn btn-primary" download>
-                            <i class="fas fa-download"></i>
-                            تحميل السيرة الذاتية
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <p>&copy; 2024 يوسف أحمد محمد. جميع الحقوق محفوظة.</p>
-                <p>صُمم بـ <i class="fas fa-heart"></i> باستخدام HTML, CSS & JavaScript</p>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Portfolio Modal -->
-    <div class="modal" id="portfolio-modal">
-        <div class="modal-content">
-            <span class="modal-close">&times;</span>
-            <div class="modal-body">
-                <div class="modal-image">
-                    <img src="" alt="" id="modal-img">
-                </div>
-                <div class="modal-info">
-                    <h3 id="modal-title"></h3>
-                    <p id="modal-description"></p>
-                    <div class="modal-tags" id="modal-tags"></div>
-                    <div class="modal-links" id="modal-links"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Reply Modal -->
-    <div class="modal reply-modal" id="reply-modal" style="display: none;">
-        <div class="reply-modal-content">
-            <div class="reply-modal-header">
-                <h3><i class="fas fa-reply"></i> اكتب ردك</h3>
-                <span class="reply-modal-close">&times;</span>
-            </div>
-            <div class="reply-modal-body">
-                <div class="reply-to-info" id="reply-to-info">
-                    <span class="reply-to-label">الرد على:</span>
-                    <span class="reply-to-name" id="reply-to-name"></span>
-                </div>
-                <form class="reply-modal-form" id="reply-modal-form">
-                    <div class="form-group">
-                        <label for="reply-modal-name">
-                            <i class="fas fa-user"></i>
-                            الاسم
-                        </label>
-                        <input type="text" id="reply-modal-name" name="name" required placeholder="اكتب اسمك">
-                    </div>
-                    <div class="form-group">
-                        <label for="reply-modal-email">
-                            <i class="fas fa-envelope"></i>
-                            البريد الإلكتروني (اختياري)
-                        </label>
-                        <input type="email" id="reply-modal-email" name="email" placeholder="example@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label for="reply-modal-text">
-                            <i class="fas fa-comment-dots"></i>
-                            الرد
-                        </label>
-                        <textarea id="reply-modal-text" name="reply" required rows="5" placeholder="اكتب ردك هنا..."></textarea>
-                        <div class="char-counter" id="reply-char-counter">0/500</div>
-                    </div>
-                    <div class="reply-modal-actions">
-                        <button type="submit" class="btn btn-primary reply-modal-submit">
+                <!-- Comment Form -->
+                <div class="comment-form-container" data-aos="fade-up" data-aos-delay="100">
+                    <form class="comment-form" id="comment-form">
+                        <div class="form-group">
+                            <label for="comment-name">الاسم</label>
+                            <input type="text" id="comment-name" name="name" required placeholder="اكتب اسمك">
+                        </div>
+                        <div class="form-group">
+                            <label for="comment-email">البريد الإلكتروني (اختياري)</label>
+                            <input type="email" id="comment-email" name="email" placeholder="example@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="comment-text">التعليق</label>
+                            <textarea id="comment-text" name="comment" required rows="4"
+                                placeholder="اكتب تعليقك هنا..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary comment-submit">
                             <i class="fas fa-paper-plane"></i>
-                            إرسال الرد
+                            إرسال التعليق
                         </button>
-                        <button type="button" class="btn btn-secondary reply-modal-cancel">
-                            <i class="fas fa-times"></i>
-                            إلغاء
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Admin Panel Modal -->
-    <div class="modal admin-modal" id="admin-modal" style="display: none;">
-        <div class="admin-modal-content">
-            <div class="admin-modal-header">
-                <h2><i class="fas fa-shield-alt"></i> لوحة إدارة التعليقات والردود</h2>
-                <span class="admin-modal-close">&times;</span>
-            </div>
-            <div class="admin-modal-body">
-                <div class="admin-tabs">
-                    <button class="admin-tab-btn active" data-tab="comments">
-                        <i class="fas fa-comments"></i>
-                        التعليقات (<span id="admin-comments-count">0</span>)
-                    </button>
-                    <button class="admin-tab-btn" data-tab="replies">
-                        <i class="fas fa-reply-all"></i>
-                        الردود (<span id="admin-replies-count">0</span>)
-                    </button>
-                    <button class="admin-tab-btn" data-tab="visitors">
-                        <i class="fas fa-users"></i>
-                        الزوار (<span id="admin-visitors-count">0</span>)
-                    </button>
+                    </form>
                 </div>
-                
-                <div class="admin-tab-content active" id="admin-comments-tab">
-                    <div class="admin-search-bar">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="admin-comments-search" placeholder="ابحث في التعليقات...">
+
+                <!-- Comments List -->
+                <div class="comments-container" data-aos="fade-up" data-aos-delay="200">
+                    <div class="comments-header">
+                        <h3>التعليقات (<span id="comments-count">0</span>)</h3>
+                        <div class="comments-sort">
+                            <select id="comments-sort">
+                                <option value="newest">الأحدث أولاً</option>
+                                <option value="oldest">الأقدم أولاً</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="admin-items-list" id="admin-comments-list">
-                        <div class="admin-loading">
+                    <div class="comments-list" id="comments-list">
+                        <div class="comments-loading" id="comments-loading">
                             <i class="fas fa-spinner fa-spin"></i>
                             <span>جاري تحميل التعليقات...</span>
                         </div>
+                        <div class="no-comments" id="no-comments" style="display: none;">
+                            <i class="fas fa-comments"></i>
+                            <p>لا توجد تعليقات بعد. كن أول من يعلق!</p>
+                        </div>
+                        <div class="comments-items" id="comments-items"></div>
                     </div>
                 </div>
-                
-                <div class="admin-tab-content" id="admin-replies-tab">
-                    <div class="admin-search-bar">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="admin-replies-search" placeholder="ابحث في الردود...">
-                    </div>
-                    <div class="admin-items-list" id="admin-replies-list">
-                        <div class="admin-loading">
-                            <i class="fas fa-spinner fa-spin"></i>
-                            <span>جاري تحميل الردود...</span>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="contact-section">
+            <div class="container">
+                <div class="section-header" data-aos="fade-up">
+                    <h2 class="section-title">تواصل معي</h2>
+                    <p class="section-subtitle">دعنا نتعاون لتحقيق أفكارك</p>
+                </div>
+
+                <div class="contact-content">
+                    <div class="contact-info" data-aos="fade-right" data-aos-delay="100">
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h4>البريد الإلكتروني</h4>
+                                <p>yjmt46999@gmail.com</p>
+                            </div>
+                        </div>
+
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-phone"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h4>الهاتف</h4>
+                                <p>+201024485693</p>
+                            </div>
+                        </div>
+
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="fas fa-map-marker-alt"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h4>الموقع</h4>
+                                <p>دمياط شطا 2 مصر</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="admin-tab-content" id="admin-visitors-tab">
-                    <div class="admin-search-bar">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="admin-visitors-search" placeholder="ابحث في الزوار...">
-                    </div>
-                    <div class="admin-items-list" id="admin-visitors-list">
-                        <div class="admin-loading">
-                            <i class="fas fa-spinner fa-spin"></i>
-                            <span>جاري تحميل بيانات الزوار...</span>
+
+                    <div class="social-links" data-aos="fade-left" data-aos-delay="200">
+                        <h3>تابعني على</h3>
+                        <div class="social-grid">
+                            <a href="https://web.facebook.com/ywsf.ahmd.jm.t.28459" class="social-link" target="_blank"
+                                rel="noopener">
+                                <i class="fab fa-facebook"></i>
+                                <span>Facebook</span>
+                            </a>
+                            <a href="https://github.com/youssef20807y" class="social-link" target="_blank"
+                                rel="noopener">
+                                <i class="fab fa-github"></i>
+                                <span>GitHub</span>
+                            </a>
+                            <a href="https://www.behance.net/46abdaaa" class="social-link" target="_blank"
+                                rel="noopener">
+                                <i class="fab fa-behance"></i>
+                                <span>Behance</span>
+                            </a>
+                            <a href="https://wa.me/201024485693" class="social-link" target="_blank" rel="noopener">
+                                <i class="fab fa-whatsapp"></i>
+                                <span>WhatsApp</span>
+                            </a>
+                        </div>
+
+                        <div class="cv-download">
+                            <a href="assets/cv.pdf" class="btn btn-primary" download>
+                                <i class="fas fa-download"></i>
+                                تحميل السيرة الذاتية
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
+        </section>
+
+        <div class="scroll-btn" id="scroll-btn" title="العودة للأعلى">
+            <i class="fas fa-arrow-up"></i>
         </div>
-    </div>
 
-    <!-- Firebase Config -->
-    <script src="firebase-config.js"></script>
-    
-    <!-- Firebase SDK -->
-    <!-- Admin Access Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            let clickCount = 0;
-            const adminPassword = 'youssef20807y';
-            const adminAccessElement = document.createElement('div');
-            adminAccessElement.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 5px; display: none; z-index: 9999;';
-            document.body.appendChild(adminAccessElement);
+        <footer class="footer glass">
+            <div class="container">
+                <div class="footer-content">
+                    <p>&copy; 2024 يوسف أحمد محمد. جميع الحقوق محفوظة.</p>
+                    <p>صُمم بـ <i class="fas fa-heart"></i> باستخدام HTML, CSS & JavaScript</p>
+                </div>
+            </div>
+        </footer>
 
-            function checkAdminAccess() {
-                clickCount++;
-                
-                if (clickCount === 4) {
-                    adminAccessElement.textContent = 'مرة أخرى للدخول لوحة التحكم';
-                    adminAccessElement.style.display = 'block';
-                    setTimeout(() => {
-                        adminAccessElement.style.display = 'none';
-                    }, 2000);
-                } else if (clickCount >= 5) {
-                    const password = prompt('أدخل كلمة المرور:');
-                    if (password === adminPassword) {
+        <!-- Portfolio Modal -->
+        <div class="modal" id="portfolio-modal">
+            <div class="modal-content">
+                <span class="modal-close">&times;</span>
+                <div class="modal-body">
+                    <div class="modal-image">
+                        <img src="" alt="" id="modal-img">
+                    </div>
+                    <div class="modal-info">
+                        <h3 id="modal-title"></h3>
+                        <p id="modal-description"></p>
+                        <div class="modal-tags" id="modal-tags"></div>
+                        <div class="modal-links" id="modal-links"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                        clickCount = 0;
-                    } else {
-                        alert('كلمة المرور غير صحيحة');
-                        location.reload();
+        <!-- Reply Modal -->
+        <div class="modal reply-modal" id="reply-modal" style="display: none;">
+            <div class="reply-modal-content">
+                <div class="reply-modal-header">
+                    <h3><i class="fas fa-reply"></i> اكتب ردك</h3>
+                    <span class="reply-modal-close">&times;</span>
+                </div>
+                <div class="reply-modal-body">
+                    <div class="reply-to-info" id="reply-to-info">
+                        <span class="reply-to-label">الرد على:</span>
+                        <span class="reply-to-name" id="reply-to-name"></span>
+                    </div>
+                    <form class="reply-modal-form" id="reply-modal-form">
+                        <div class="form-group">
+                            <label for="reply-modal-name">
+                                <i class="fas fa-user"></i>
+                                الاسم
+                            </label>
+                            <input type="text" id="reply-modal-name" name="name" required placeholder="اكتب اسمك">
+                        </div>
+                        <div class="form-group">
+                            <label for="reply-modal-email">
+                                <i class="fas fa-envelope"></i>
+                                البريد الإلكتروني (اختياري)
+                            </label>
+                            <input type="email" id="reply-modal-email" name="email" placeholder="example@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="reply-modal-text">
+                                <i class="fas fa-comment-dots"></i>
+                                الرد
+                            </label>
+                            <textarea id="reply-modal-text" name="reply" required rows="5"
+                                placeholder="اكتب ردك هنا..."></textarea>
+                            <div class="char-counter" id="reply-char-counter">0/500</div>
+                        </div>
+                        <div class="reply-modal-actions">
+                            <button type="submit" class="btn btn-primary reply-modal-submit">
+                                <i class="fas fa-paper-plane"></i>
+                                إرسال الرد
+                            </button>
+                            <button type="button" class="btn btn-secondary reply-modal-cancel">
+                                <i class="fas fa-times"></i>
+                                إلغاء
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Firebase Config -->
+        <script src="firebase-config.js"></script>
+
+        <!-- Firebase SDK -->
+
+
+        <script type="module">
+            import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+            import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+            import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+            import { getAnalytics, isSupported } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
+
+            // Initialize Firebase
+            try {
+                // Check if running in a browser environment
+                if (typeof window !== 'undefined') {
+                    const app = initializeApp(window.firebaseConfig);
+                    const db = getFirestore(app);
+                    const auth = getAuth(app);
+
+                    // Initialize Analytics only in production and if supported
+                    if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                        isSupported().then(supported => {
+                            if (supported) {
+                                const analytics = getAnalytics(app);
+                                window.firebaseAnalytics = analytics;
+                                console.log('Firebase Analytics initialized');
+                            }
+                        });
+                    }
+
+                    // Make Firebase available globally
+                    window.firebaseApp = app;
+                    window.firebaseDb = db;
+                    window.firebaseAuth = auth;
+
+                    console.log('Firebase initialized successfully');
+
+                    // Initialize visitor tracking
+                    if (typeof initializeVisitorTracking === 'function') {
+                        initializeVisitorTracking();
                     }
                 }
-                
-                // Reset counter if no clicks for 3 seconds
-                clearTimeout(window.adminClickTimeout);
-                window.adminClickTimeout = setTimeout(() => {
-                    clickCount = 0;
-                    adminAccessElement.style.display = 'none';
-                }, 3000);
-            }
-
-            // Add click event listener to the document
-            document.addEventListener('click', checkAdminAccess);
-        });
-    </script>
-
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-        import { getAnalytics, isSupported } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js';
-        
-        // Initialize Firebase
-        try {
-            // Check if running in a browser environment
-            if (typeof window !== 'undefined') {
-                const app = initializeApp(window.firebaseConfig);
-                const db = getFirestore(app);
-                const auth = getAuth(app);
-                
-                // Initialize Analytics only in production and if supported
-                if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-                    isSupported().then(supported => {
-                        if (supported) {
-                            const analytics = getAnalytics(app);
-                            window.firebaseAnalytics = analytics;
-                            console.log('Firebase Analytics initialized');
-                        }
-                    });
-                }
-                
-                // Make Firebase available globally
-                window.firebaseApp = app;
-                window.firebaseDb = db;
-                window.firebaseAuth = auth;
-                
-                console.log('Firebase initialized successfully');
-                
-                // Initialize visitor tracking
-                if (typeof initializeVisitorTracking === 'function') {
-                    initializeVisitorTracking();
-                }
-            }
-        } catch (error) {
-            console.error('Firebase initialization error:', error);
-            // Fallback to mock data in development
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                console.warn('Running in development mode with limited Firebase functionality');
-                window.firebaseDb = {
-                    collection: () => ({
-                        add: () => Promise.resolve(),
-                        orderBy: () => ({
-                            limit: () => ({
-                                get: () => Promise.resolve({ docs: [] })
-                            })
-                        })
-                    }),
-                    doc: () => ({
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                // Fallback to mock data in development
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    console.warn('Running in development mode with limited Firebase functionality');
+                    window.firebaseDb = {
                         collection: () => ({
                             add: () => Promise.resolve(),
                             orderBy: () => ({
-                                get: () => Promise.resolve({ docs: [] })
+                                limit: () => ({
+                                    get: () => Promise.resolve({ docs: [] })
+                                })
                             })
                         }),
-                        delete: () => Promise.resolve()
-                    })
-                };
-                window.firebaseAuth = {
-                    currentUser: null,
-                    onAuthStateChanged: (callback) => callback(null)
-                };
+                        doc: () => ({
+                            collection: () => ({
+                                add: () => Promise.resolve(),
+                                orderBy: () => ({
+                                    get: () => Promise.resolve({ docs: [] })
+                                })
+                            }),
+                            delete: () => Promise.resolve()
+                        })
+                    };
+                    window.firebaseAuth = {
+                        currentUser: null,
+                        onAuthStateChanged: (callback) => callback(null)
+                    };
+                }
             }
-        }
-    </script>
+        </script>
 
-    <!-- Scripts -->
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="script.js"></script>
+
+
+        <!-- Scripts -->
+        <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+        <script src="script.js"></script>
 </body>
-</html>
 
+</html>
