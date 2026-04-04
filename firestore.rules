@@ -14,19 +14,9 @@ service cloud.firestore {
              request.resource.data.timestamp is timestamp;
     }
     
-    // Comments collection - allow read/write access for all users (temporary fix)
+    // Comments collection
     match /comments/{commentId} {
-      // Allow read access for everyone
-      allow read: if true;
-      
-      // Allow create for everyone with basic validation
-      allow create: if isValidCommentData();
-      
-      // Allow update for everyone with basic validation
-      allow update: if isValidCommentData();
-      
-      // Allow delete for everyone
-      allow delete: if true;
+      allow read, write: if true;
     }
     
     // Stats collection - allow read/write access for all users (temporary fix)
@@ -39,20 +29,14 @@ service cloud.firestore {
     match /visitors/{visitorId} {
       allow read, write: if true;
     }
+
+    match /settings/{docId} {
+      allow read, write: if true;
+    }
     
-    // Replies collection - allow read/write access for all users (temporary fix)
+    // Replies collection
     match /replies/{replyId} {
-      // Allow read access for everyone
-      allow read: if true;
-      
-      // Allow create for everyone with basic validation
-      allow create: if isValidCommentData();
-      
-      // Allow update for everyone with basic validation
-      allow update: if isValidCommentData();
-      
-      // Allow delete for everyone
-      allow delete: if true;
+      allow read, write: if true;
     }
     
     // User profiles - users can only read/write their own profile

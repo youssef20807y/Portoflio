@@ -4,6 +4,13 @@ let portfolioItems = [];
 let sectionColors = {};
 let colorRefreshInterval;
 
+let visitorTrackingInitialized = false;
+let visitorId = localStorage.getItem('visitor_id');
+if (!visitorId) {
+    visitorId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    try { localStorage.setItem('visitor_id', visitorId); } catch (e) { }
+}
+
 // Initialize dynamic colors if the function exists
 function initializeDynamicColors() {
     // This function can be implemented if dynamic colors are needed
@@ -19,31 +26,46 @@ function initializeCustomCursor() {
     const outline = document.getElementById('cursor-outline');
     if (!dot || !outline) return;
 
+    // Completely disable on mobile and touch devices
+    if ('ontouchstart' in window || navigator.maxTouchPoints > 0 || window.matchMedia("(max-width: 768px)").matches || window.matchMedia("(pointer: coarse)").matches) {
+        dot.style.display = 'none';
+        outline.style.display = 'none';
+        return;
+    }
+
     let mouseX = 0;
     let mouseY = 0;
     let dotX = 0;
     let dotY = 0;
     let outlineX = 0;
     let outlineY = 0;
+    let isMoving = false;
 
     const lerp = (start, end, amt) => (1 - amt) * start + amt * end;
 
     window.addEventListener('mousemove', (e) => {
         mouseX = e.clientX;
         mouseY = e.clientY;
+        if (!isMoving) {
+            dotX = mouseX;
+            dotY = mouseY;
+            outlineX = mouseX;
+            outlineY = mouseY;
+            isMoving = true;
+        }
         document.body.classList.add('cursor-active');
     });
 
     function animateCursor() {
         // Dot follows instantly
-        dotX = lerp(dotX, mouseX, 0.8);
-        dotY = lerp(dotY, mouseY, 0.8);
+        dotX = lerp(dotX, mouseX, 0.9);
+        dotY = lerp(dotY, mouseY, 0.9);
         dot.style.left = `${dotX}px`;
         dot.style.top = `${dotY}px`;
 
-        // Outline follows with slight, snappy lag
-        outlineX = lerp(outlineX, mouseX, 0.35);
-        outlineY = lerp(outlineY, mouseY, 0.35);
+        // Outline follows with smooth lag
+        outlineX = lerp(outlineX, mouseX, 0.25);
+        outlineY = lerp(outlineY, mouseY, 0.25);
         outline.style.left = `${outlineX}px`;
         outline.style.top = `${outlineY}px`;
 
@@ -298,7 +320,38 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeSkills();
     initializeComments();
     initializeDynamicColors();
+    initializePreloader();
 });
+
+// ===== PRELOADER MANAGEMENT =====
+function initializePreloader() {
+    const preloader = document.getElementById('premium-preloader');
+    if (!preloader || preloader.style.display === 'none') {
+        // If it's already hidden by the inline script, just allow scrolling
+        document.body.style.overflow = '';
+        return;
+    }
+
+    if (!localStorage.getItem('premiumPreloaderShown')) {
+        const hidePreloader = () => {
+            setTimeout(() => {
+                preloader.classList.add('fade-out');
+
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                    document.body.style.overflow = '';
+                    localStorage.setItem('premiumPreloaderShown', 'true');
+                }, 800); // Wait for CSS transition
+            }, 2500); // Show for 2.5s minimum
+        };
+
+        if (document.readyState === 'complete') {
+            hidePreloader();
+        } else {
+            window.addEventListener('load', hidePreloader);
+        }
+    }
+}
 
 // ===== THEME MANAGEMENT =====
 function initializeTheme() {

@@ -33,10 +33,38 @@
     <link rel="stylesheet" href="./style.css">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/jpg" href="images/profile.jpg">
+    <link rel="icon" type="image/png" href="images/profile.png">
 </head>
 
 <body>
+    <!-- Premium Preloader -->
+    <div id="premium-preloader" class="premium-preloader">
+        <div class="preloader-bg-grid"></div>
+        <div class="preloader-content">
+            <div class="energy-core">
+                <div class="core-ring core-ring-1"></div>
+                <div class="core-ring core-ring-2"></div>
+                <div class="core-ring core-ring-3"></div>
+                <div class="core-logo"><i class="fas fa-code"></i></div>
+            </div>
+            <div class="loader-text-wrapper">
+                <h1 class="epic-text">يوسف أحمد</h1>
+                <div class="loading-bar-container">
+                    <div class="loading-bar-progress"></div>
+                </div>
+                <span class="text-loading-modern">بدء تشغيل النظام...</span>
+            </div>
+        </div>
+    </div>
+    <script>
+        if (localStorage.getItem('premiumPreloaderShown')) {
+            document.getElementById('premium-preloader').style.display = 'none';
+        } else {
+            document.body.style.overflow = 'hidden';
+            window.scrollTo(0, 0);
+        }
+    </script>
+
     <!-- Progress Bar -->
     <div class="progress-container">
         <div class="progress-bar" id="progress-bar"></div>
@@ -68,19 +96,16 @@
                 <li class="nav-item">
                     <a href="#contact" class="nav-link">تواصل معي</a>
                 </li>
-                <li class="nav-item">
-                    <a href="admin.html" class="nav-link nav-admin-btn">لوحة المسؤول</a>
-                </li>
             </ul>
             <div class="nav-toggle" id="nav-toggle">
                 <span class="bar"></span>
                 <span class="bar"></span>
                 <span class="bar"></span>
             </div>
-                        <div class="theme-toggle" id="theme-toggle">
+            <div class="theme-toggle" id="theme-toggle">
                 <i class="fas fa-moon"></i>
             </div>
-                    </div>
+        </div>
     </nav>
 
     <!-- Hero Section -->
@@ -445,14 +470,7 @@
             <i class="fas fa-arrow-up"></i>
         </div>
 
-        <footer class="footer glass">
-            <div class="container">
-                <div class="footer-content">
-                    <p>&copy; 2024 يوسف أحمد محمد. جميع الحقوق محفوظة.</p>
-                    <p>صُمم بـ <i class="fas fa-heart"></i> باستخدام HTML, CSS & JavaScript</p>
-                </div>
-            </div>
-        </footer>
+
 
         <!-- Portfolio Modal -->
         <div class="modal" id="portfolio-modal">

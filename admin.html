@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,35 +10,212 @@
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root { --bg:#f4f6fb; --card:#fff; --text:#172033; --muted:#6b7380; --pri:#4f46e5; --danger:#dc2626; --ok:#059669; --bor:#e4e7ef; }
-    *{box-sizing:border-box} body{margin:0;font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text)}
-    .top{background:#111827;color:#fff;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
-    .top a{color:#fff;text-decoration:none;background:#374151;padding:8px 12px;border-radius:10px}
-    .container{max-width:1200px;margin:24px auto;padding:0 16px}
-    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:16px}
-    .stat{background:var(--card);border:1px solid var(--bor);border-radius:14px;padding:14px}
-    .stat b{font-size:1.5rem;color:var(--pri)}
-    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-    .tab{border:none;background:#e8ebf5;padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:700}
-    .tab.active{background:var(--pri);color:#fff}
-    .panel{display:none}
-    .panel.active{display:block}
-    .tools{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-    input[type="search"]{width:min(360px,100%);padding:10px 12px;border:1px solid var(--bor);border-radius:10px;font-family:inherit}
-    .list{display:grid;gap:10px}
-    .item{background:var(--card);border:1px solid var(--bor);border-radius:12px;padding:12px}
-    .head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap}
-    .meta{color:var(--muted);font-size:.9rem}
-    .text{margin:10px 0;white-space:pre-wrap}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
-    .box{background:#f9fafb;border:1px solid var(--bor);border-radius:10px;padding:10px;font-size:.9rem}
-    .actions{display:flex;gap:8px;flex-wrap:wrap}
-    button{font-family:inherit}
-    .btn{border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:700}
-    .edit{background:#f59e0b;color:#111827}.del{background:var(--danger);color:#fff}.save{background:var(--ok);color:#fff}.cancel{background:#6b7280;color:#fff}
-    .empty{background:#fff;border:1px dashed var(--bor);padding:18px;border-radius:12px;color:var(--muted);text-align:center}
+    :root {
+      --bg: #f4f6fb;
+      --card: #fff;
+      --text: #172033;
+      --muted: #6b7380;
+      --pri: #4f46e5;
+      --danger: #dc2626;
+      --ok: #059669;
+      --bor: #e4e7ef;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Cairo', sans-serif;
+      background: var(--bg);
+      color: var(--text)
+    }
+
+    .top {
+      background: #111827;
+      color: #fff;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 10
+    }
+
+    .top a {
+      color: #fff;
+      text-decoration: none;
+      background: #374151;
+      padding: 8px 12px;
+      border-radius: 10px
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 24px auto;
+      padding: 0 16px
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px
+    }
+
+    .stat {
+      background: var(--card);
+      border: 1px solid var(--bor);
+      border-radius: 14px;
+      padding: 14px
+    }
+
+    .stat b {
+      font-size: 1.5rem;
+      color: var(--pri)
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px
+    }
+
+    .tab {
+      border: none;
+      background: #e8ebf5;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700
+    }
+
+    .tab.active {
+      background: var(--pri);
+      color: #fff
+    }
+
+    .panel {
+      display: none
+    }
+
+    .panel.active {
+      display: block
+    }
+
+    .tools {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px
+    }
+
+    input[type="search"] {
+      width: min(360px, 100%);
+      padding: 10px 12px;
+      border: 1px solid var(--bor);
+      border-radius: 10px;
+      font-family: inherit
+    }
+
+    .list {
+      display: grid;
+      gap: 10px
+    }
+
+    .item {
+      background: var(--card);
+      border: 1px solid var(--bor);
+      border-radius: 12px;
+      padding: 12px
+    }
+
+    .head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: flex-start;
+      flex-wrap: wrap
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: .9rem
+    }
+
+    .text {
+      margin: 10px 0;
+      white-space: pre-wrap
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px
+    }
+
+    .box {
+      background: #f9fafb;
+      border: 1px solid var(--bor);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: .9rem
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    button {
+      font-family: inherit
+    }
+
+    .btn {
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700
+    }
+
+    .edit {
+      background: #f59e0b;
+      color: #111827
+    }
+
+    .del {
+      background: var(--danger);
+      color: #fff
+    }
+
+    .save {
+      background: var(--ok);
+      color: #fff
+    }
+
+    .cancel {
+      background: #6b7280;
+      color: #fff
+    }
+
+    .empty {
+      background: #fff;
+      border: 1px dashed var(--bor);
+      padding: 18px;
+      border-radius: 12px;
+      color: var(--muted);
+      text-align: center
+    }
   </style>
 </head>
+
 <body>
   <header class="top">
     <h1><i class="fa-solid fa-shield-halved"></i> لوحة المسؤول</h1>
@@ -58,7 +236,15 @@
     </div>
 
     <section class="panel active" id="panel-visitors">
-      <div class="tools"><input id="search-visitors" type="search" placeholder="بحث في بيانات الزوار"></div>
+      <div class="tools">
+        <input id="search-visitors" type="search" placeholder="بحث في بيانات الزوار">
+        <div
+          style="display: flex; align-items: center; gap: 12px; background: #fff; padding: 5px 12px; border-radius: 10px; border: 1px solid var(--bor);">
+          <span style="font-weight: 600; font-size: 0.9rem;">تفريغ الزوار القادم بعد: <span id="clear-countdown"
+              style="color: var(--danger); font-family: monospace; font-size: 1.1rem; margin-right: 5px; display: inline-block; min-width: 80px;">--:--:--</span></span>
+          <button class="btn del" id="btn-clear-visitors" data-action="clear-all-visitors">مسح الكل الآن</button>
+        </div>
+      </div>
       <div class="list" id="list-visitors"></div>
     </section>
 
@@ -76,29 +262,29 @@
   <script src="firebase-config.js"></script>
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import { getFirestore, collection, getDocs, query, orderBy, doc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+    import { getFirestore, collection, getDocs, getDoc, setDoc, query, orderBy, doc, updateDoc, deleteDoc, writeBatch } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
     const app = initializeApp(window.firebaseConfig);
     const db = getFirestore(app);
 
     const state = { visitors: [], comments: [], replies: [] };
 
-    const escapeHtml = (str='') => str.replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-    const ts = (t) => t?.toDate ? t.toDate().toLocaleString('ar-EG') : (t?.seconds ? new Date(t.seconds*1000).toLocaleString('ar-EG') : 'غير متاح');
+    const escapeHtml = (str = '') => str.replace(/[&<>'"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[c]));
+    const ts = (t) => t?.toDate ? t.toDate().toLocaleString('ar-EG') : (t?.seconds ? new Date(t.seconds * 1000).toLocaleString('ar-EG') : 'غير متاح');
 
-    function initTabs(){
+    function initTabs() {
       document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-        document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById(`panel-${btn.dataset.tab}`).classList.add('active');
       }));
     }
 
-    function renderVisitors(items){
+    function renderVisitors(items) {
       const list = document.getElementById('list-visitors');
       document.getElementById('count-visitors').textContent = items.length;
-      if(!items.length){ list.innerHTML='<div class="empty">لا يوجد زوار.</div>'; return; }
+      if (!items.length) { list.innerHTML = '<div class="empty">لا يوجد زوار.</div>'; return; }
       list.innerHTML = items.map(v => `
         <article class="item" data-search="${escapeHtml(JSON.stringify(v).toLowerCase())}">
           <div class="head">
@@ -106,22 +292,22 @@
             <span class="meta">آخر زيارة: ${ts(v.lastVisitAt) || escapeHtml(v.lastVisitIso || '')}</span>
           </div>
           <div class="grid">
-            <div class="box"><b>الجهاز</b><br>النوع: ${escapeHtml(v.deviceType||'غير معروف')}<br>الشركة: ${escapeHtml(v.manufacturer||'غير معروف')}<br>الموديل: ${escapeHtml(v.mobileModel||'غير معروف')}<br>النظام: ${escapeHtml(v.operatingSystem||'')} ${escapeHtml(v.osVersion||'')}</div>
-            <div class="box"><b>المتصفح</b><br>${escapeHtml(v.browser||'')} ${escapeHtml(v.browserVersion||'')}<br>اللغة: ${escapeHtml(v.language||'')}<br>المنطقة: ${escapeHtml(v.timezone||'')}<br>كوكيز: ${v.cookiesEnabled?'مفعل':'معطل'}</div>
-            <div class="box"><b>الشاشة والشبكة</b><br>${escapeHtml(String(v.screenWidth||0))} × ${escapeHtml(String(v.screenHeight||0))}<br>الاتصال: ${escapeHtml(v.connection?.effectiveType || 'غير معروف')}<br>downlink: ${escapeHtml(String(v.connection?.downlink ?? 'N/A'))}<br>rtt: ${escapeHtml(String(v.connection?.rtt ?? 'N/A'))}</div>
-            <div class="box"><b>الزيارة</b><br>عدد الزيارات: ${escapeHtml(String(v.visitCount||1))}<br>زيارات سابقة: ${escapeHtml(String(v.previousVisits||0))}<br>VPN: ${escapeHtml(v.vpnUsage||'غير محدد')}<br>incognito: ${escapeHtml(v.incognitoMode||'غير محدد')}</div>
+            <div class="box"><b>الجهاز</b><br>النوع: ${escapeHtml(v.deviceType || 'غير معروف')}<br>الشركة: ${escapeHtml(v.manufacturer || 'غير معروف')}<br>الموديل: ${escapeHtml(v.mobileModel || 'غير معروف')}<br>النظام: ${escapeHtml(v.operatingSystem || '')} ${escapeHtml(v.osVersion || '')}</div>
+            <div class="box"><b>المتصفح</b><br>${escapeHtml(v.browser || '')} ${escapeHtml(v.browserVersion || '')}<br>اللغة: ${escapeHtml(v.language || '')}<br>المنطقة: ${escapeHtml(v.timezone || '')}<br>كوكيز: ${v.cookiesEnabled ? 'مفعل' : 'معطل'}</div>
+            <div class="box"><b>الشاشة والشبكة</b><br>${escapeHtml(String(v.screenWidth || 0))} × ${escapeHtml(String(v.screenHeight || 0))}<br>الاتصال: ${escapeHtml(v.connection?.effectiveType || 'غير معروف')}<br>downlink: ${escapeHtml(String(v.connection?.downlink ?? 'N/A'))}<br>rtt: ${escapeHtml(String(v.connection?.rtt ?? 'N/A'))}</div>
+            <div class="box"><b>الزيارة</b><br>عدد الزيارات: ${escapeHtml(String(v.visitCount || 1))}<br>زيارات سابقة: ${escapeHtml(String(v.previousVisits || 0))}<br>VPN: ${escapeHtml(v.vpnUsage || 'غير محدد')}<br>incognito: ${escapeHtml(v.incognitoMode || 'غير محدد')}</div>
           </div>
         </article>
       `).join('');
     }
 
-    function renderComments(items){
+    function renderComments(items) {
       const list = document.getElementById('list-comments');
       document.getElementById('count-comments').textContent = items.length;
-      if(!items.length){ list.innerHTML='<div class="empty">لا توجد تعليقات.</div>'; return; }
+      if (!items.length) { list.innerHTML = '<div class="empty">لا توجد تعليقات.</div>'; return; }
       list.innerHTML = items.map(c => `
-        <article class="item" data-id="${c.id}" data-search="${escapeHtml(`${c.name} ${c.email||''} ${c.text||c.comment||''}`.toLowerCase())}">
-          <div class="head"><div><strong>${escapeHtml(c.name||'مستخدم')}</strong><div class="meta">${escapeHtml(c.email||'')}</div></div><span class="meta">${ts(c.timestamp)}</span></div>
+        <article class="item" data-id="${c.id}" data-search="${escapeHtml(`${c.name} ${c.email || ''} ${c.text || c.comment || ''}`.toLowerCase())}">
+          <div class="head"><div><strong>${escapeHtml(c.name || 'مستخدم')}</strong><div class="meta">${escapeHtml(c.email || '')}</div></div><span class="meta">${ts(c.timestamp)}</span></div>
           <p class="text">${escapeHtml(c.text || c.comment || '')}</p>
           <div class="actions">
             <button class="btn edit" data-action="edit-comment">تعديل</button>
@@ -131,13 +317,13 @@
       `).join('');
     }
 
-    function renderReplies(items){
+    function renderReplies(items) {
       const list = document.getElementById('list-replies');
       document.getElementById('count-replies').textContent = items.length;
-      if(!items.length){ list.innerHTML='<div class="empty">لا توجد ردود.</div>'; return; }
+      if (!items.length) { list.innerHTML = '<div class="empty">لا توجد ردود.</div>'; return; }
       list.innerHTML = items.map(r => `
-        <article class="item" data-id="${r.id}" data-search="${escapeHtml(`${r.name} ${r.email||''} ${r.reply||''}`.toLowerCase())}">
-          <div class="head"><div><strong>${escapeHtml(r.name||'مستخدم')}</strong><div class="meta">${escapeHtml(r.email||'')}</div></div><span class="meta">${ts(r.timestamp)}</span></div>
+        <article class="item" data-id="${r.id}" data-search="${escapeHtml(`${r.name} ${r.email || ''} ${r.reply || ''}`.toLowerCase())}">
+          <div class="head"><div><strong>${escapeHtml(r.name || 'مستخدم')}</strong><div class="meta">${escapeHtml(r.email || '')}</div></div><span class="meta">${ts(r.timestamp)}</span></div>
           <p class="text">${escapeHtml(r.reply || '')}</p>
           <div class="actions">
             <button class="btn edit" data-action="edit-reply">تعديل</button>
@@ -147,21 +333,85 @@
       `).join('');
     }
 
-    async function loadAll(){
-      const [vSnap,cSnap,rSnap] = await Promise.all([
-        getDocs(query(collection(db,'visitors'), orderBy('lastVisitAt','desc'))),
-        getDocs(query(collection(db,'comments'), orderBy('timestamp','desc'))),
-        getDocs(query(collection(db,'replies'), orderBy('timestamp','desc')))
+    async function loadAll() {
+      const [vSnap, cSnap, rSnap] = await Promise.all([
+        getDocs(query(collection(db, 'visitors'), orderBy('lastVisitAt', 'desc'))),
+        getDocs(query(collection(db, 'comments'), orderBy('timestamp', 'desc'))),
+        getDocs(query(collection(db, 'replies'), orderBy('timestamp', 'desc')))
       ]);
-      state.visitors = vSnap.docs.map(d=>({id:d.id, ...d.data()}));
-      state.comments = cSnap.docs.map(d=>({id:d.id, ...d.data()}));
-      state.replies = rSnap.docs.map(d=>({id:d.id, ...d.data()}));
+      state.visitors = vSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+      state.comments = cSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+      state.replies = rSnap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderVisitors(state.visitors);
       renderComments(state.comments);
       renderReplies(state.replies);
     }
 
-    function attachSearch(inputId, listId){
+    let clearTimerInterval = null;
+
+    async function manageVisitorClearance() {
+      const settingsRef = doc(db, 'settings', 'visitor_config');
+      let snap = await getDoc(settingsRef);
+      let nextClearTime = 0;
+
+      if (!snap.exists()) {
+        nextClearTime = Date.now() + 24 * 60 * 60 * 1000;
+        await setDoc(settingsRef, { nextVisitorClear: nextClearTime });
+      } else {
+        nextClearTime = snap.data().nextVisitorClear || (Date.now() + 24 * 60 * 60 * 1000);
+      }
+
+      if (Date.now() >= nextClearTime) {
+        await wipeAllVisitors();
+        nextClearTime = Date.now() + 24 * 60 * 60 * 1000;
+        await setDoc(settingsRef, { nextVisitorClear: nextClearTime }, { merge: true });
+      }
+
+      if (clearTimerInterval) clearInterval(clearTimerInterval);
+
+      const cdEl = document.getElementById('clear-countdown');
+
+      clearTimerInterval = setInterval(() => {
+        const now = Date.now();
+        const diff = nextClearTime - now;
+
+        if (diff <= 0) {
+          clearInterval(clearTimerInterval);
+          cdEl.textContent = "جاري المسح...";
+          manageVisitorClearance().then(() => loadAll());
+          return;
+        }
+
+        const h = Math.floor(diff / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+        cdEl.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }, 1000);
+    }
+
+    async function wipeAllVisitors() {
+      const vSnap = await getDocs(collection(db, 'visitors'));
+      if (vSnap.empty) return;
+
+      let batch = writeBatch(db);
+      let count = 0;
+      for (const d of vSnap.docs) {
+        batch.delete(d.ref);
+        count++;
+        if (count === 500) {
+          await batch.commit();
+          batch = writeBatch(db);
+          count = 0;
+        }
+      }
+      if (count > 0) await batch.commit();
+
+      state.visitors = [];
+      renderVisitors(state.visitors);
+    }
+
+    function attachSearch(inputId, listId) {
       const input = document.getElementById(inputId);
       input.addEventListener('input', () => {
         const q = input.value.trim().toLowerCase();
@@ -173,23 +423,37 @@
 
     document.addEventListener('click', async (e) => {
       const btn = e.target.closest('button[data-action]');
-      if(!btn) return;
+      if (!btn) return;
+
+      if (btn.dataset.action === 'clear-all-visitors') {
+        if (!confirm('هل أنت متأكد من مسح جميع بيانات الزوار نهائياً الآن؟ لا يمكن التراجع عن هذا الإجراء.')) return;
+        btn.disabled = true;
+        btn.textContent = 'جاري المسح...';
+        await wipeAllVisitors();
+        const nextClearTime = Date.now() + 24 * 60 * 60 * 1000;
+        await setDoc(doc(db, 'settings', 'visitor_config'), { nextVisitorClear: nextClearTime }, { merge: true });
+        btn.disabled = false;
+        btn.textContent = 'مسح الكل الآن';
+        manageVisitorClearance();
+        return;
+      }
+
       const card = e.target.closest('.item');
-      if(!card) return;
+      if (!card) return;
       const id = card.dataset.id;
 
-      if(btn.dataset.action === 'delete-comment'){
-        if(!confirm('حذف هذا التعليق؟')) return;
-        await deleteDoc(doc(db,'comments',id));
-        state.comments = state.comments.filter(x=>x.id!==id); renderComments(state.comments); return;
+      if (btn.dataset.action === 'delete-comment') {
+        if (!confirm('حذف هذا التعليق؟')) return;
+        await deleteDoc(doc(db, 'comments', id));
+        state.comments = state.comments.filter(x => x.id !== id); renderComments(state.comments); return;
       }
-      if(btn.dataset.action === 'delete-reply'){
-        if(!confirm('حذف هذا الرد؟')) return;
-        await deleteDoc(doc(db,'replies',id));
-        state.replies = state.replies.filter(x=>x.id!==id); renderReplies(state.replies); return;
+      if (btn.dataset.action === 'delete-reply') {
+        if (!confirm('حذف هذا الرد؟')) return;
+        await deleteDoc(doc(db, 'replies', id));
+        state.replies = state.replies.filter(x => x.id !== id); renderReplies(state.replies); return;
       }
 
-      if(btn.dataset.action === 'edit-comment' || btn.dataset.action === 'edit-reply'){
+      if (btn.dataset.action === 'edit-comment' || btn.dataset.action === 'edit-reply') {
         const p = card.querySelector('.text');
         const oldText = p.textContent;
         p.innerHTML = `<textarea style="width:100%;min-height:90px;padding:10px;border:1px solid var(--bor);border-radius:8px;font-family:inherit">${escapeHtml(oldText)}</textarea>`;
@@ -198,27 +462,29 @@
         return;
       }
 
-      if(btn.dataset.action === 'cancel'){ await loadAll(); return; }
+      if (btn.dataset.action === 'cancel') { await loadAll(); return; }
 
-      if(btn.dataset.action === 'save'){
+      if (btn.dataset.action === 'save') {
         const textarea = card.querySelector('textarea');
         const value = textarea.value.trim();
-        if(!value){ alert('النص فارغ'); return; }
+        if (!value) { alert('النص فارغ'); return; }
         const type = card.dataset.editType;
-        if(type === 'comment') await updateDoc(doc(db,'comments',id), { comment:value, text:value });
-        if(type === 'reply') await updateDoc(doc(db,'replies',id), { reply:value });
+        if (type === 'comment') await updateDoc(doc(db, 'comments', id), { comment: value, text: value });
+        if (type === 'reply') await updateDoc(doc(db, 'replies', id), { reply: value });
         await loadAll();
       }
     });
 
     initTabs();
-    attachSearch('search-visitors','list-visitors');
-    attachSearch('search-comments','list-comments');
-    attachSearch('search-replies','list-replies');
+    attachSearch('search-visitors', 'list-visitors');
+    attachSearch('search-comments', 'list-comments');
+    attachSearch('search-replies', 'list-replies');
+    manageVisitorClearance();
     loadAll().catch(err => {
       console.error(err);
       alert('تعذر تحميل البيانات من Firebase. تأكد من الإعدادات والصلاحيات.');
     });
   </script>
 </body>
+
 </html>

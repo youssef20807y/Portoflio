@@ -1,0 +1,30 @@
+[debug] [2026-04-04T12:52:17.474Z] ----------------------------------------------------------------------
+[debug] [2026-04-04T12:52:17.492Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\AutoRun 4U\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js deploy --only firestore:rules
+[debug] [2026-04-04T12:52:17.493Z] CLI Version:   15.1.0
+[debug] [2026-04-04T12:52:17.493Z] Platform:      win32
+[debug] [2026-04-04T12:52:17.493Z] Node Version:  v22.18.0
+[debug] [2026-04-04T12:52:17.494Z] Time:          Sat Apr 04 2026 14:52:17 GMT+0200 (توقيت شرق أوروبا الرسمي)
+[debug] [2026-04-04T12:52:17.495Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-04-04T12:52:17.500Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[error] 
+[error] Error: No currently active project.
+To run this command, you need to specify a project. You have two options:
+- Run this command with --project <alias_or_project_id>.
+- Set an active project by running firebase use --add, then rerun this command.
+To list all the Firebase projects to which you have access, run firebase projects:list.
+To learn about active projects for the CLI, visit https://firebase.google.com/docs/cli#project_aliases
+
+
+[debug] [2026-04-04T12:52:23.903Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2026-04-04T12:52:23.904Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2026-04-04T12:52:24.094Z] Error: EBUSY: resource busy or locked, unlink 'C:\Users\AutoRun 4U\Desktop\Portoflio-main\firebase-debug.log'
+    at Object.unlinkSync (node:fs:1952:11)
+    at process.<anonymous> (C:\Users\AutoRun 4U\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\cli.js:44:16)
+    at process.emit (node:events:530:35)
+    at process.exit (node:internal/process/per_thread:194:15)
+    at Timeout._onTimeout (C:\Users\AutoRun 4U\AppData\Roaming\npm\node_modules\firebase-tools\lib\errorOut.js:20:17)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[error] 
+[error] Error: An unexpected error has occurred.
