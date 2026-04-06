@@ -973,8 +973,7 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 function initializeSkills() {
     const containers = {
         programming: document.getElementById('skills-programming'),
-        design: document.getElementById('skills-design'),
-        other: document.getElementById('skills-other')
+        design: document.getElementById('skills-design')
     };
 
     const levelBadgeClass = (level) => {
