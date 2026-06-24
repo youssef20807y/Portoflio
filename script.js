@@ -766,6 +766,10 @@ function initializeContactForm() {
 
     contactItems.forEach(item => {
         item.addEventListener('click', function () {
+            if (this.tagName === 'A') {
+                return;
+            }
+
             const contactDetails = this.querySelector('.contact-details p');
             if (contactDetails) {
                 const text = contactDetails.textContent;
@@ -1436,9 +1440,6 @@ async function setupCommentsSystem() {
                         <input type="text" name="name" required placeholder="اسمك" class="reply-name">
                     </div>
                     <div class="form-group">
-                        <input type="email" name="email" placeholder="البريد الإلكتروني (اختياري)" class="reply-email">
-                    </div>
-                    <div class="form-group">
                         <textarea name="reply" required rows="3" placeholder="اكتب ردك هنا..." class="reply-text"></textarea>
                     </div>
                     <div class="reply-form-actions">
@@ -1481,7 +1482,7 @@ async function setupCommentsSystem() {
                 const formData = new FormData(e.target);
                 const replyData = {
                     name: formData.get('name').trim(),
-                    email: formData.get('email').trim(),
+                    email: '',
                     reply: formData.get('reply').trim(),
                     timestamp: serverTimestamp(),
                     parentCommentId: parentCommentId,
@@ -1763,9 +1764,6 @@ async function setupCommentsSystem() {
                         <input type="text" name="name" required placeholder="اسمك" class="reply-name">
                     </div>
                     <div class="form-group">
-                        <input type="email" name="email" placeholder="البريد الإلكتروني (اختياري)" class="reply-email">
-                    </div>
-                    <div class="form-group">
                         <textarea name="reply" required rows="3" placeholder="اكتب ردك هنا..." class="reply-text"></textarea>
                     </div>
                     <div class="reply-form-actions">
@@ -1808,7 +1806,7 @@ async function setupCommentsSystem() {
                 const formData = new FormData(e.target);
                 const replyData = {
                     name: formData.get('name').trim(),
-                    email: formData.get('email').trim(),
+                    email: '',
                     reply: formData.get('reply').trim(),
                     timestamp: serverTimestamp(),
                     parentCommentId: parentCommentId,
@@ -2033,7 +2031,7 @@ async function setupCommentsSystem() {
 
                 const commentData = {
                     name: formData.get('name').trim(),
-                    email: formData.get('email').trim(),
+                    email: '',
                     text: formData.get('comment').trim(), // Changed from 'comment' to 'text'
                     timestamp: serverTimestamp(),
                     userId: userId, // Add generated user ID
@@ -2221,7 +2219,7 @@ async function setupCommentsSystem() {
 
                     const formData = new FormData(replyModalForm);
                     const replyName = (formData.get('name') || '').toString().trim();
-                    const replyEmail = (formData.get('email') || '').toString().trim();
+                    const replyEmail = '';
                     const replyText = (formData.get('reply') || '').toString().trim();
 
                     const replyData = {
@@ -3085,166 +3083,6 @@ window.loadAdminVisitors = async function () {
     }
 };
 
-// Track clicks on the name in header
-document.addEventListener('DOMContentLoaded', function () {
-    const nameElement = document.querySelector('.nav-logo span');
-    if (nameElement) {
-        nameElement.style.cursor = 'pointer';
-        nameElement.title = 'اضغط 5 مرات لفتح لوحة التحكم';
-
-        nameElement.addEventListener('click', function () {
-            // Clear previous timer if exists
-            if (nameClickTimer) {
-                clearTimeout(nameClickTimer);
-            }
-
-            // Increment click count
-            nameClickCount++;
-
-            // Show progress
-            showNameClickProgress(nameClickCount);
-
-            // If reached required clicks, open admin panel
-            if (nameClickCount >= NAME_CLICK_REQUIRED) {
-                openAdminPanel();
-                nameClickCount = 0;
-                removeNameClickProgress();
-                return;
-            }
-
-            // Reset counter after timeout
-            nameClickTimer = setTimeout(() => {
-                nameClickCount = 0;
-                removeNameClickProgress();
-            }, NAME_CLICK_TIMEOUT);
-        });
-    }
-});
-
-// Show name click progress
-function showNameClickProgress(count) {
-    removeNameClickProgress(); // Remove any existing progress indicator
-
-    const progress = document.createElement('div');
-    progress.id = 'name-click-progress';
-    progress.style.position = 'fixed';
-    progress.style.top = '10px';
-    progress.style.left = '50%';
-    progress.style.transform = 'translateX(-50%)';
-    progress.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-    progress.style.color = 'white';
-    progress.style.padding = '10px 20px';
-    progress.style.borderRadius = '20px';
-    progress.style.zIndex = '9999';
-    progress.style.fontFamily = 'Cairo, sans-serif';
-    progress.style.fontSize = '14px';
-    progress.style.transition = 'opacity 0.5s';
-    progress.textContent = `تم النقر ${count} من ${NAME_CLICK_REQUIRED} مرات`;
-
-    document.body.appendChild(progress);
-
-    // Auto-hide after 1.5 seconds
-    setTimeout(() => {
-        progress.style.opacity = '0';
-        setTimeout(() => {
-            if (progress.parentNode) {
-                progress.parentNode.removeChild(progress);
-            }
-        }, 500);
-    }, 1500);
-}
-
-// Remove name click progress
-function removeNameClickProgress() {
-    const existingProgress = document.getElementById('name-click-progress');
-    if (existingProgress && existingProgress.parentNode) {
-        existingProgress.parentNode.removeChild(existingProgress);
-    }
-}
-
-// Track Y key presses
-document.addEventListener('keydown', function (e) {
-    // Check for 'y' or 'Y' key (keyCode 89 or key 'y')
-    if (e.key.toLowerCase() === 'y') {
-        yKeyPressCount++;
-
-        // Clear existing timer
-        if (yKeyPressTimer) {
-            clearTimeout(yKeyPressTimer);
-        }
-
-        // Reset counter after timeout
-        yKeyPressTimer = setTimeout(() => {
-            yKeyPressCount = 0;
-        }, Y_KEY_TIMEOUT);
-
-        // Show visual feedback
-        if (yKeyPressCount > 0) {
-            showYKeyProgress(yKeyPressCount);
-        }
-
-        // Open admin panel if 5 presses reached
-        if (yKeyPressCount >= Y_KEY_REQUIRED_PRESSES) {
-            yKeyPressCount = 0;
-            clearTimeout(yKeyPressTimer);
-            removeYKeyProgress();
-            openAdminPanel();
-        }
-    }
-});
-
-// Show Y key press progress
-function showYKeyProgress(count) {
-    let progressIndicator = document.getElementById('y-key-progress');
-
-    if (!progressIndicator) {
-        progressIndicator = document.createElement('div');
-        progressIndicator.id = 'y-key-progress';
-        progressIndicator.style.cssText = `
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(79, 70, 229, 0.95);
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border-radius: 50px;
-            z-index: 9999;
-            font-weight: 600;
-            font-size: 0.95rem;
-            box-shadow: 0 4px 20px rgba(79, 70, 229, 0.4);
-            transition: all 0.3s ease;
-            animation: bounceIn 0.3s ease;
-        `;
-        document.body.appendChild(progressIndicator);
-    }
-
-    const remaining = Y_KEY_REQUIRED_PRESSES - count;
-    progressIndicator.innerHTML = `
-        <i class="fas fa-keyboard"></i>
-        ${remaining === 0 ? 'فتح لوحة الإدارة...' : `اضغط Y ${remaining} مرات أخرى`}
-        <span style="margin-right: 0.5rem;">${'🔑'.repeat(count)}</span>
-    `;
-
-    // Scale animation
-    progressIndicator.style.transform = 'translateX(-50%) scale(1.1)';
-    setTimeout(() => {
-        progressIndicator.style.transform = 'translateX(-50%) scale(1)';
-    }, 200);
-}
-
-// Remove Y key progress indicator
-function removeYKeyProgress() {
-    const progressIndicator = document.getElementById('y-key-progress');
-    if (progressIndicator) {
-        progressIndicator.style.opacity = '0';
-        progressIndicator.style.transform = 'translateX(-50%) scale(0.8)';
-        setTimeout(() => {
-            progressIndicator.remove();
-        }, 300);
-    }
-}
-
 // Open admin panel
 function openAdminPanel() {
     const adminModal = document.getElementById('admin-modal');
@@ -3731,61 +3569,6 @@ function filterAdminItems(type, searchText) {
     });
 }
 
-// ===== ADMIN ACCESS LOGIC =====
-let adminClickCount = 0;
-let adminClickTimeout;
-const adminPassword = 'youssef20807y';
-
-function checkAdminAccess() {
-    adminClickCount++;
-
-    // Create or get toast element for feedback
-    let adminToast = document.getElementById('admin-toast');
-    if (!adminToast) {
-        adminToast = document.createElement('div');
-        adminToast.id = 'admin-toast';
-        adminToast.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 5px; display: none; z-index: 10000; font-family: Cairo, sans-serif;';
-        document.body.appendChild(adminToast);
-    }
-
-    if (adminClickCount === 4) {
-        adminToast.textContent = 'نقرة واحدة أخرى للوصول للمسؤول... 🛡️';
-        adminToast.style.display = 'block';
-        setTimeout(() => {
-            adminToast.style.display = 'none';
-        }, 2000);
-    } else if (adminClickCount >= 5) {
-        adminToast.style.display = 'none';
-        const password = prompt('أدخل كلمة المرور لدخول لوحة التحكم:');
-        if (password === adminPassword) {
-            showNotification('تم الوصول بنجاح! 🔓');
-            const adminBtn = document.getElementById('admin-button');
-            if (adminBtn) {
-                adminBtn.style.display = 'flex';
-                adminBtn.classList.add('reveal-animation');
-            }
-            adminClickCount = 0;
-        } else if (password !== null) {
-            showNotification('كلمة المرور غير صحيحة ❌');
-            adminClickCount = 0;
-        }
-    }
-
-    // Reset counter if no clicks for 3 seconds
-    clearTimeout(adminClickTimeout);
-    adminClickTimeout = setTimeout(() => {
-        adminClickCount = 0;
-    }, 3000);
-}
-
-// Add click event listener for admin access
-document.addEventListener('click', (e) => {
-    // Only count clicks on the body or elements that aren't interactive
-    if (e.target.tagName === 'BODY' || e.target.tagName === 'SECTION' || e.target.classList.contains('hero-bg')) {
-        checkAdminAccess();
-    }
-});
-
 // Admin Panel Functions
 function openAdminPanel() {
     const adminModal = document.getElementById('admin-modal');
@@ -3869,4 +3652,3 @@ document.addEventListener('keydown', function (e) {
         }
     }
 });
-
